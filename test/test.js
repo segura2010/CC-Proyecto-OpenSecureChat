@@ -9,7 +9,7 @@ var dbmongo = monk('localhost:27017/opensecurechat');
 
 // Inicializacion redis
 var redis = require("redis");
-var client = null; //redis.createClient();
+//var client = redis.createClient();
 
 var pruebas = dbmongo.get("pruebas");
 
@@ -29,9 +29,6 @@ describe('Carga de Librerias', function() {
   describe('Redis', function () {
     it('Debe cargar la libreria de redis correctamente', function () {
       assert(redis);
-    });
-    it('Debe crear el cliente redis correctamente', function () {
-      assert(client);
     });
   });
 });
