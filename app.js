@@ -20,7 +20,7 @@ var io = require('socket.io')(http);
 // Initialize dbmongo
 var dbmongo = monk('localhost:27017/opensecurechat');
 // Initialize redis
-//var client = redis.createClient();
+var dbredis = redis.createClient();
 
 // Get DB
 var users = dbmongo.get("users");
@@ -32,4 +32,7 @@ app.use(express.static('public_html'));
 http.listen(config.httpServer.port, function(){
 	console.log('listening on *:'+ config.httpServer.port);
 });
+
+
+
 
