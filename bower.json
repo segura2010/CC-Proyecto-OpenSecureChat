@@ -1,0 +1,17 @@
+{
+  "name": "OpenSecureChat",
+  "description": "Chat seguro",
+  "main": "app.js",
+  "authors": [
+    "Luis Alberto Segura Delgado"
+  ],
+  "license": "GNU",
+  "keywords": [
+    "chat"
+  ],
+  "homepage": "https://github.com/segura2010/CC-Proyecto-OpenSecureChat",
+  "moduleType": [],
+  "dependencies": {
+    "jquery": "~2.1.4"
+  }
+}

@@ -35,4 +35,15 @@ http.listen(config.httpServer.port, function(){
 
 
 
+// SocketIO Events
+io.on('connection', function (socket) {
+	socket.emit('something', { hello: 'world' });
+	socket.on('hello', function (data){
+		console.log(data);
+	});
+});
+
+
+
+
 

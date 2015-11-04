@@ -1,1 +1,4 @@
 node_modules
+public_html/js/bower_components
+public_html/js/osc.min.js
+public_html/css/osc.min.css

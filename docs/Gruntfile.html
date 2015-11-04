@@ -20,6 +20,16 @@
             <div id="jump_page">
               
                 
+                <a class="source" href="Chat.html">
+                  Chat.js
+                </a>
+              
+                
+                <a class="source" href="User.html">
+                  User.js
+                </a>
+              
+                
                 <a class="source" href="Gruntfile.html">
                   Gruntfile.js
                 </a>
@@ -72,13 +82,36 @@
             
             <div class="content"><div class='highlight'><pre>  grunt.initConfig({
     pkg: grunt.file.readJSON(<span class="hljs-string">'package.json'</span>),
-    docco: { <span class="hljs-comment">// Documentacion</span>
+    docco: { <span class="hljs-comment">// Documentation!</span>
   	  debug: {
     	  src: [<span class="hljs-string">'*.js'</span>, <span class="hljs-string">'./lib/*.js'</span>], <span class="hljs-comment">// Indicamos que genere documentacion de los ficheros JS</span>
     	  options: {
     		  output: <span class="hljs-string">'docs/'</span>
     	  }
   	  }
+    },
+    uglify: { <span class="hljs-comment">// Minify/Compress client JavaScript</span>
+      options:{
+        mangle: <span class="hljs-literal">true</span>,
+        compress: <span class="hljs-literal">true</span>,
+        wrap: <span class="hljs-literal">true</span>
+      },
+      my_target: {
+        files: {  <span class="hljs-comment">// My JS files and other libraries</span>
+          <span class="hljs-string">'public_html/js/osc.min.js'</span>: [<span class="hljs-string">'public_html/js/*.js'</span>, <span class="hljs-string">'public_html/js/bower_components/*.js'</span>, <span class="hljs-string">'public_html/js/bower_components/*/*.js'</span>]
+        }
+      }
+    },
+    bower: { <span class="hljs-comment">// Install client libraries</span>
+      install: {
+          options: {
+              targetDir: <span class="hljs-string">'./public_html/js/bower_components'</span>,
+              layout: <span class="hljs-string">'byComponent'</span>,
+              install: <span class="hljs-literal">true</span>,
+              verbose: <span class="hljs-literal">true</span>,
+              cleanBowerDir: <span class="hljs-literal">true</span>
+          }
+      }
     }
   });</pre></div></div>
             
@@ -95,7 +128,9 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  grunt.loadNpmTasks(<span class="hljs-string">'grunt-docco'</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  grunt.loadNpmTasks(<span class="hljs-string">'grunt-docco'</span>);
+  grunt.loadNpmTasks(<span class="hljs-string">'grunt-contrib-uglify'</span>);
+  grunt.loadNpmTasks(<span class="hljs-string">'grunt-bower-task'</span>);</pre></div></div>
             
         </li>
         
@@ -110,7 +145,8 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  grunt.registerTask(<span class="hljs-string">'default'</span>, [<span class="hljs-string">'docco'</span>]);
+            <div class="content"><div class='highlight'><pre>  grunt.registerTask(<span class="hljs-string">'default'</span>, [<span class="hljs-string">'docco'</span>, <span class="hljs-string">'bower'</span>, <span class="hljs-string">'uglify'</span>]);
+  grunt.registerTask(<span class="hljs-string">'min'</span>, [<span class="hljs-string">'uglify'</span>]);
 };</pre></div></div>
             
         </li>

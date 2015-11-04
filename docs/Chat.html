@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>app.js</title>
+  <title>Chat.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -48,7 +48,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>app.js</h1>
+                  <h1>Chat.js</h1>
               </div>
           </li>
         
@@ -63,6 +63,8 @@
               
             </div>
             
+            <div class="content"><div class='highlight'><pre>exports.ChatController = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">db</span>)</span>{</pre></div></div>
+            
         </li>
         
         
@@ -72,11 +74,13 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Get config file (config.json)</p>
+              <p>Redis Client</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> config = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./config.json'</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">this</span>.dbredis = db;
+
+	<span class="hljs-keyword">this</span>.add = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">userid, touserid, encryptedMsgUser, encryptedMsgToUser, cb</span>)</span>{</pre></div></div>
             
         </li>
         
@@ -87,12 +91,9 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
-              <p>Libs for MongoDB</p>
+              <p>Adds message to DB</p>
 
             </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> mongo = <span class="hljs-built_in">require</span>(<span class="hljs-string">'mongodb'</span>);
-<span class="hljs-keyword">var</span> monk = <span class="hljs-built_in">require</span>(<span class="hljs-string">'monk'</span>);</pre></div></div>
             
         </li>
         
@@ -103,11 +104,18 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>Libs for RedisDB</p>
+              <p>Increment unread user chat messages</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> redis = <span class="hljs-built_in">require</span>(<span class="hljs-string">"redis"</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>		dbredis.hgetall(<span class="hljs-string">"chats:"</span>+ touserid, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, result</span>)</span>{
+			<span class="hljs-keyword">var</span> unread = <span class="hljs-number">0</span>;
+			<span class="hljs-keyword">if</span>(result &amp;&amp; result[touserid])
+			{
+				unread = result[touserid] + <span class="hljs-number">1</span>;
+			}
+			dbredis.hmset(<span class="hljs-string">"chats:"</span>+ touserid, userid, unread);
+		});</pre></div></div>
             
         </li>
         
@@ -118,13 +126,11 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
-              <p>Libs for HTTP Server (Web)</p>
+              <p>Add messages to USERID messages in DB</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> express = <span class="hljs-built_in">require</span>(<span class="hljs-string">'express'</span>);
-<span class="hljs-keyword">var</span> app = express();
-<span class="hljs-keyword">var</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>).Server(app);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>		dbredis.hmset(userid +<span class="hljs-string">":"</span>+ touserid, encryptedMsgUser, <span class="hljs-number">1</span>);</pre></div></div>
             
         </li>
         
@@ -135,11 +141,14 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
-              <p>Libs for SocketIO (using the http server)</p>
+              <p>Add messages to TOUSERID messages in DB</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> io = <span class="hljs-built_in">require</span>(<span class="hljs-string">'socket.io'</span>)(http);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>		dbredis.hmset(touserid +<span class="hljs-string">":"</span>+ userid, encryptedMsgToUser, <span class="hljs-number">0</span>);
+	};
+
+	<span class="hljs-keyword">this</span>.getChatsForUser = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">uid, cb</span>)</span>{</pre></div></div>
             
         </li>
         
@@ -150,11 +159,14 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              <p>Initialize dbmongo</p>
+              <p>Get user chats by USERID</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> dbmongo = monk(<span class="hljs-string">'localhost:27017/opensecurechat'</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>		dbredis.hgetall(<span class="hljs-string">"chats:"</span>+ uid, cb);
+	};
+
+	<span class="hljs-keyword">this</span>.getChatMessages = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">uid, withotheruid, cb</span>)</span>{</pre></div></div>
             
         </li>
         
@@ -165,11 +177,14 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
-              <p>Initialize redis</p>
+              <p>Get user chat messages with other user</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> dbredis = redis.createClient();</pre></div></div>
+            <div class="content"><div class='highlight'><pre>		dbredis.hgetall(uid +<span class="hljs-string">":"</span>+ withotheruid, cb);
+	};
+
+};</pre></div></div>
             
         </li>
         
@@ -180,11 +195,16 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p>Get DB</p>
+              <p>Test redis</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> users = dbmongo.get(<span class="hljs-string">"users"</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/*
+dbredis.set("test:1", 0);
+dbredis.get("test:1", function(err, result){
+	console.log(result);
+});
+*/</span></pre></div></div>
             
         </li>
         
@@ -195,11 +215,20 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
-              <p>Initialize HTTP Server</p>
+              <p>Chat index example
+It contains an object like this:
+{“USERID1”:0, “USERID2”:2, “USERID3”:1}
+the number counts how many unread messages from the USERID are</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>app.use(express.static(<span class="hljs-string">'public_html'</span>));</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/*
+dbredis.hmset("chats:USERID", "USERID1", 0, "USERID2", 0, "USERID3", 0);
+dbredis.hgetall("chats:USERID", function(err, result){
+	console.log(result);
+	console.log(err);
+});
+*/</span></pre></div></div>
             
         </li>
         
@@ -210,33 +239,26 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
-              <p>Listen on port</p>
+              <p>Users Chat Messages example
+It contains an object with the messages encrypted with public key of user USERID
+for the chat between USERID and OTHERUSERID.
+When USERID sends a message to OTHERUSERID we must save the message in objects: 
+        “USERID:OTHERUSERID” (encrypted with public key of USERID) -&gt; this chat messages will be send to USERID when log in
+        “OTHERUSERID:USERID” (encrypted with public key of OTHERUSERID) -&gt; this chat messages will be send to OTHERUSERID when log in
+{“MESSAGE1”:0, “MESSAGE2”:1, “MESSAGE3”:0}
+the number of each message:
+        1 -&gt; Send by me
+    0 -&gt; Send by OTHERUSERID</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>http.listen(config.httpServer.port, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
-	<span class="hljs-built_in">console</span>.log(<span class="hljs-string">'listening on *:'</span>+ config.httpServer.port);
-});</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-12">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
-              </div>
-              <p>SocketIO Events</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>io.on(<span class="hljs-string">'connection'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">socket</span>) </span>{
-	socket.emit(<span class="hljs-string">'something'</span>, { hello: <span class="hljs-string">'world'</span> });
-	socket.on(<span class="hljs-string">'hello'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">data</span>)</span>{
-		<span class="hljs-built_in">console</span>.log(data);
-	});
-});</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/*
+dbredis.hmset("USERID:OTHERUSERID", "MESSAGE1", 0, "MESSAGE2", 0, "MESSAGE3", 0);
+dbredis.hgetall("USERID:OTHERUSERID", function(err, result){
+	console.log(result);
+	console.log(err);
+});
+*/</span></pre></div></div>
             
         </li>
         
