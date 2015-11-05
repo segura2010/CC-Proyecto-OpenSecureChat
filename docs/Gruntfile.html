@@ -91,14 +91,27 @@
   	  }
     },
     uglify: { <span class="hljs-comment">// Minify/Compress client JavaScript</span>
-      options:{
-        mangle: <span class="hljs-literal">true</span>,
-        compress: <span class="hljs-literal">true</span>,
-        wrap: <span class="hljs-literal">true</span>
+      dev:{
+        options:{
+          compress: <span class="hljs-literal">false</span>,
+          wrap: <span class="hljs-literal">false</span>
+        },
+        my_target: {
+          files: {  <span class="hljs-comment">// My JS files and other libraries</span>
+            <span class="hljs-string">'public_html/js/osc.min.js'</span>: [<span class="hljs-string">'public_html/js/own_components/*.js'</span>, <span class="hljs-string">'public_html/js/bower_components/*.js'</span>, <span class="hljs-string">'public_html/js/bower_components/*/*.js'</span>]
+          }
+        }
       },
-      my_target: {
-        files: {  <span class="hljs-comment">// My JS files and other libraries</span>
-          <span class="hljs-string">'public_html/js/osc.min.js'</span>: [<span class="hljs-string">'public_html/js/*.js'</span>, <span class="hljs-string">'public_html/js/bower_components/*.js'</span>, <span class="hljs-string">'public_html/js/bower_components/*/*.js'</span>]
+      prod:{
+        options:{
+          compress: <span class="hljs-literal">true</span>,
+          wrap: <span class="hljs-literal">true</span>,
+          mangle:<span class="hljs-literal">true</span>
+        },
+        my_target: {
+          files: {  <span class="hljs-comment">// My JS files and other libraries</span>
+            <span class="hljs-string">'public_html/js/osc.min.js'</span>: [<span class="hljs-string">'public_html/js/own_components/*.js'</span>, <span class="hljs-string">'public_html/js/bower_components/*.js'</span>, <span class="hljs-string">'public_html/js/bower_components/*/*.js'</span>]
+          }
         }
       }
     },
@@ -111,6 +124,17 @@
               verbose: <span class="hljs-literal">true</span>,
               cleanBowerDir: <span class="hljs-literal">true</span>
           }
+      }
+    },
+    cssmin: {
+      target: {
+        files: [{
+          expand: <span class="hljs-literal">true</span>,
+          cwd: <span class="hljs-string">'public_html/css/my_css'</span>,
+          src: [<span class="hljs-string">'*.css'</span>, <span class="hljs-string">'!*.min.css'</span>],
+          dest: <span class="hljs-string">'public_html/css'</span>,
+          ext: <span class="hljs-string">'osc.min.css'</span>
+        }]
       }
     }
   });</pre></div></div>
@@ -130,7 +154,8 @@
             
             <div class="content"><div class='highlight'><pre>  grunt.loadNpmTasks(<span class="hljs-string">'grunt-docco'</span>);
   grunt.loadNpmTasks(<span class="hljs-string">'grunt-contrib-uglify'</span>);
-  grunt.loadNpmTasks(<span class="hljs-string">'grunt-bower-task'</span>);</pre></div></div>
+  grunt.loadNpmTasks(<span class="hljs-string">'grunt-bower-task'</span>);
+  grunt.loadNpmTasks(<span class="hljs-string">'grunt-contrib-cssmin'</span>);</pre></div></div>
             
         </li>
         
@@ -145,8 +170,10 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  grunt.registerTask(<span class="hljs-string">'default'</span>, [<span class="hljs-string">'docco'</span>, <span class="hljs-string">'bower'</span>, <span class="hljs-string">'uglify'</span>]);
-  grunt.registerTask(<span class="hljs-string">'min'</span>, [<span class="hljs-string">'uglify'</span>]);
+            <div class="content"><div class='highlight'><pre>  grunt.registerTask(<span class="hljs-string">'default'</span>, [<span class="hljs-string">'docco'</span>, <span class="hljs-string">'bower'</span>, <span class="hljs-string">'uglify:prod'</span>, <span class="hljs-string">'cssmin'</span>]); <span class="hljs-comment">// Generate all</span>
+  grunt.registerTask(<span class="hljs-string">'setup'</span>, [<span class="hljs-string">'bower'</span>, <span class="hljs-string">'uglify'</span>, <span class="hljs-string">'cssmin'</span>]); <span class="hljs-comment">// Install JS client packages with bower and then, compress and minify ALL (bower JS and my own JS, and CSS)</span>
+  grunt.registerTask(<span class="hljs-string">'dev'</span>, [<span class="hljs-string">'bower'</span>, <span class="hljs-string">'uglify:dev'</span>, <span class="hljs-string">'cssmin'</span>]);
+  grunt.registerTask(<span class="hljs-string">'min'</span>, [<span class="hljs-string">'uglify:prod'</span>]);
 };</pre></div></div>
             
         </li>
