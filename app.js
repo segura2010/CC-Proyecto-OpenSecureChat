@@ -23,7 +23,24 @@ var dbmongo = monk('localhost:27017/opensecurechat');
 var dbredis = redis.createClient();
 
 // Get DB
-var users = dbmongo.get("users");
+var usersdb = dbmongo.get("users");
+
+// Import my libraries
+var UserLib = require('./lib/User.js').UserController;
+var ChatLib = require('./lib/Chat.js').ChatController;
+
+// Create controllers
+var User = new UserLib(usersdb, dbredis);
+var Chat = new ChatLib(dbredis);
+
+// Prepare DB Indexes
+User.prepareIndexes();
+
+
+var testuser = {username:"testuser", email:"testuser@opensecurechat.com", password:"12345", pk:"public_key", privKey:"private_key"}
+User.add(testuser, function(err, result){
+	console.log(err);
+});
 
 
 // Initialize HTTP Server
