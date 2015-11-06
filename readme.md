@@ -2,9 +2,7 @@
 # Sistema de Mensajería Instantanea (Chat)
 ___
 
-[![Build Status](https://travis-ci.org/segura2010/CC-Proyecto-OpenSecureChat.svg?branch=master)](https://travis-ci.org/segura2010/CC-Proyecto-OpenSecureChat)
-
-[![Dependencies Status](https://david-dm.org/segura2010/CC-Proyecto-OpenSecureChat.svg)](https://david-dm.org)
+[![Build Status](https://travis-ci.org/segura2010/CC-Proyecto-OpenSecureChat.svg?branch=master)](https://travis-ci.org/segura2010/CC-Proyecto-OpenSecureChat) [![Dependencies Status](https://david-dm.org/segura2010/CC-Proyecto-OpenSecureChat.svg)](https://david-dm.org)
 
 
 Se realizará un sistema de chat seguro. Se utilizarán algoritmos de cifrado extremo a extremo que permitan que la comunicación entre usuarios sea segura y privada.
