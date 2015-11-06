@@ -37,12 +37,6 @@ var Chat = new ChatLib(dbredis);
 User.prepareIndexes();
 
 
-var testuser = {username:"testuser", email:"testuser@opensecurechat.com", password:"12345", pk:"public_key", privKey:"private_key"}
-User.add(testuser, function(err, result){
-	console.log(err);
-});
-
-
 // Initialize HTTP Server
 app.use(express.static('public_html'));
 // Listen on port
@@ -59,8 +53,6 @@ io.on('connection', function (socket) {
 		console.log(data);
 	});
 });
-
-
 
 
 
