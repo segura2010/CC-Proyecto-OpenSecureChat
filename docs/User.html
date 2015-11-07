@@ -64,7 +64,7 @@
             </div>
             
             <div class="content"><div class='highlight'><pre>
-exports.UserController = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">colecc</span>)</span>{</pre></div></div>
+exports.UserController = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">colecc, redis</span>)</span>{</pre></div></div>
             
         </li>
         
@@ -79,17 +79,7 @@ exports.UserController = <span class="hljs-function"><span class="hljs-keyword">
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">this</span>.coleccion = colecc;
-
-	<span class="hljs-keyword">this</span>.prepareIndexes = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
-		<span class="hljs-keyword">var</span> c = <span class="hljs-keyword">this</span>.coleccion;
-
-		c.index(<span class="hljs-string">'email'</span>, { unique: <span class="hljs-literal">true</span> }); <span class="hljs-comment">// unique</span>
-		c.index(<span class="hljs-string">'username'</span>, { unique: <span class="hljs-literal">true</span> }); <span class="hljs-comment">// unique</span>
-		c.index(<span class="hljs-string">'password'</span>);
-	}
-
-	<span class="hljs-keyword">this</span>.add = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">user,  cb</span>)</span>{</pre></div></div>
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">this</span>.coleccion = colecc;</pre></div></div>
             
         </li>
         
@@ -100,13 +90,39 @@ exports.UserController = <span class="hljs-function"><span class="hljs-keyword">
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
               </div>
+              <p>DB Redis</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>	<span class="hljs-keyword">this</span>.redisdb = redis;
+
+	<span class="hljs-keyword">this</span>.prepareIndexes = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+		<span class="hljs-keyword">var</span> c = <span class="hljs-keyword">this</span>.coleccion;
+
+		c.index(<span class="hljs-string">'email'</span>, { unique: <span class="hljs-literal">true</span> }); <span class="hljs-comment">// unique</span>
+		c.index(<span class="hljs-string">'username'</span>, { unique: <span class="hljs-literal">true</span> }); <span class="hljs-comment">// unique</span>
+		c.index(<span class="hljs-string">'password'</span>);
+	}
+
+	<span class="hljs-keyword">this</span>.add = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">user, cb</span>)</span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
               <p>Add user to DB
 “user” is an object with -&gt; {username, email, password, pk, privKey}</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">var</span> c = <span class="hljs-keyword">this</span>.coleccion;
-		<span class="hljs-keyword">this</span>.getByName(username, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, users</span>)</span>{
+		<span class="hljs-keyword">var</span> r = <span class="hljs-keyword">this</span>.redisdb;
+		<span class="hljs-keyword">this</span>.getByUsername(user.username, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, users</span>)</span>{
 			<span class="hljs-keyword">if</span>(users.length == <span class="hljs-number">0</span>)
 			{
 				c.insert({
@@ -116,7 +132,29 @@ exports.UserController = <span class="hljs-function"><span class="hljs-keyword">
 					public_key: user.pk,
 					private_key: user.privKey,
 					picture: user.picture
-				}, cb);
+				}, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, newuser</span>)</span>{
+					<span class="hljs-keyword">if</span>(err || !newuser)
+					{
+						<span class="hljs-keyword">return</span> cb(err, newuser);
+					}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Save Private Keys to validate messages (is an index)
+Then, user will send a message and his private key (encrypted), we will check if it is correct (like cookie)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>					r.set(<span class="hljs-string">"userpk:"</span>+ user.privKey, newuser._id);
+					cb(<span class="hljs-literal">null</span>, newuser);
+				});
 			}
 			<span class="hljs-keyword">else</span>
 			{
@@ -130,11 +168,11 @@ exports.UserController = <span class="hljs-function"><span class="hljs-keyword">
         </li>
         
         
-        <li id="section-4">
+        <li id="section-6">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-4">&#182;</a>
+                <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
               <p>Get user by ID</p>
 
@@ -148,11 +186,11 @@ exports.UserController = <span class="hljs-function"><span class="hljs-keyword">
         </li>
         
         
-        <li id="section-5">
+        <li id="section-7">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
+                <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
               <p>Get user by username</p>
 
@@ -166,11 +204,11 @@ exports.UserController = <span class="hljs-function"><span class="hljs-keyword">
         </li>
         
         
-        <li id="section-6">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-6">&#182;</a>
+                <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <p>Get user by username</p>
 
@@ -184,11 +222,11 @@ exports.UserController = <span class="hljs-function"><span class="hljs-keyword">
         </li>
         
         
-        <li id="section-7">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-7">&#182;</a>
+                <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
               <p>Search user by username</p>
 
@@ -202,11 +240,11 @@ exports.UserController = <span class="hljs-function"><span class="hljs-keyword">
         </li>
         
         
-        <li id="section-8">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-8">&#182;</a>
+                <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
               <p>list last “limit” users</p>
 
@@ -215,22 +253,22 @@ exports.UserController = <span class="hljs-function"><span class="hljs-keyword">
             <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">this</span>.coleccion.find({}, {limit: limit}, cb);
 	};
 
-	<span class="hljs-keyword">this</span>.delete = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">nombre, cb</span>)</span>{</pre></div></div>
+	<span class="hljs-keyword">this</span>.delete = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">username, cb</span>)</span>{</pre></div></div>
             
         </li>
         
         
-        <li id="section-9">
+        <li id="section-11">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p>Delete user by username</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">this</span>.coleccion.remove({nombreusuario:nombre}, cb);
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">this</span>.coleccion.remove({username:username}, cb);
 	};
 
 };</pre></div></div>

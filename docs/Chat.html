@@ -95,6 +95,9 @@
 
             </div>
             
+            <div class="content"><div class='highlight'><pre>
+		<span class="hljs-keyword">var</span> redis = <span class="hljs-keyword">this</span>.dbredis;</pre></div></div>
+            
         </li>
         
         
@@ -108,13 +111,13 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		dbredis.hgetall(<span class="hljs-string">"chats:"</span>+ touserid, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, result</span>)</span>{
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">this</span>.dbredis.hgetall(<span class="hljs-string">"chats:"</span>+ touserid, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, result</span>)</span>{
 			<span class="hljs-keyword">var</span> unread = <span class="hljs-number">0</span>;
 			<span class="hljs-keyword">if</span>(result &amp;&amp; result[touserid])
 			{
 				unread = result[touserid] + <span class="hljs-number">1</span>;
 			}
-			dbredis.hmset(<span class="hljs-string">"chats:"</span>+ touserid, userid, unread);
+			redis.hmset(<span class="hljs-string">"chats:"</span>+ touserid, userid, unread);
 		});</pre></div></div>
             
         </li>
@@ -163,7 +166,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		dbredis.hgetall(<span class="hljs-string">"chats:"</span>+ uid, cb);
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">this</span>.dbredis.hgetall(<span class="hljs-string">"chats:"</span>+ uid, cb);
 	};
 
 	<span class="hljs-keyword">this</span>.getChatMessages = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">uid, withotheruid, cb</span>)</span>{</pre></div></div>
@@ -181,7 +184,7 @@
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>		dbredis.hgetall(uid +<span class="hljs-string">":"</span>+ withotheruid, cb);
+            <div class="content"><div class='highlight'><pre>		<span class="hljs-keyword">this</span>.dbredis.hgetall(uid +<span class="hljs-string">":"</span>+ withotheruid, cb);
 	};
 
 };</pre></div></div>
