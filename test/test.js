@@ -26,7 +26,7 @@ User.prepareIndexes();
 
 
 // test vars
-var testuser = {username:"testuser", email:"testuser@opensecurechat.com", password:"12345", pk:"public_key", privKey:"private_key"};
+var testuser = {username:"testuser", email:"testuser@opensecurechat.com", password:"12345", public_key:"public_key", private_key:"private_key"};
 
 
 describe('Carga de Librerias', function() {

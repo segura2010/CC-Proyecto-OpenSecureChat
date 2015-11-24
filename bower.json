@@ -12,6 +12,8 @@
   "homepage": "https://github.com/segura2010/CC-Proyecto-OpenSecureChat",
   "moduleType": [],
   "dependencies": {
-    "jquery": "~2.1.4"
+    "jquery": "~2.1.4",
+    "cryptojslib":"~3.1.2",
+    "jsencrypt":"2.1.0"
   }
 }

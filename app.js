@@ -1,6 +1,8 @@
 
-// Get config file (config.json)
-var config = require('./config.json');
+// Get config from enviroment vars
+var PORT = process.env.PORT || 3000;
+var URI = process.env.URI || "localhost";
+
 
 // Libs for MongoDB
 var mongo = require('mongodb');
@@ -40,17 +42,28 @@ User.prepareIndexes();
 // Initialize HTTP Server
 app.use(express.static('public_html'));
 // Listen on port
-http.listen(config.httpServer.port, function(){
-	console.log('listening on *:'+ config.httpServer.port);
+http.listen(PORT, function(){
+	console.log('listening on *:'+ PORT);
 });
 
+app.get("/api/config", function(req, res){
+	p = PORT;
+	if(URI.indexOf("heroku")>=0)
+	{
+		p = 80;
+	}
+
+	var url = "http://" + URI + ":" + PORT + "/";
+
+	res.send('{"SOCKETIO_URL":"'+url+'", "KEY_SIZE":"1024"}');
+});
 
 
 // SocketIO Events
 io.on('connection', function (socket) {
-	socket.emit('something', { hello: 'world' });
-	socket.on('hello', function (data){
+	socket.on('register', function (data, cb){
 		console.log(data);
+		User.add(data, cb);
 	});
 });
 

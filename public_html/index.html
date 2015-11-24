@@ -11,6 +11,16 @@
 
 	<!-- Prepare SocketIO and JS files -->
 	<script src="socket.io/socket.io.js"></script>
+
+	<script src="js/bower_components/jsencrypt/jsencrypt.min.js"></script>
+
+	<script src="js/bower_components/cryptojslib/core-min.js"></script>
+	<!-- <script src="js/bower_components/cryptojslib/aes-min.js"></script> -->
+	<script src="js/bower_components/cryptojslib/enc-base64-min.js"></script>
+	<script src="js/bower_components/cryptojslib/sha256-min.js"></script>
+
+	<script src="js/bower_components/jquery/jquery.js"></script>
+
 	<script src="js/osc.min.js"></script>
 
 	<!-- Compiled and minified CSS -->
@@ -25,6 +35,51 @@
 
 <body>
 	<h2>OpenSecureChat - Index</h2>
+
+	<a href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="showRegisterUserModal()">Sign In</a>
+
+
+	<!-- login and register modal -->
+	<div id="loginAndRegister" class="modal">
+		<div class="modal-content row">
+
+		  <div class="col s6">
+		  	<h3>Log In</h3>
+		  	<div class="input-field col s12">
+		      <input value="" id="username" type="text" class="validate">
+		      <label class="active" for="username">Username</label>
+		    </div>
+			<div class="input-field col s12">
+		      <input value="" id="password" type="password" class="validate">
+		      <label class="active" for="password">Password</label>
+		    </div> 
+			<a href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="logIn()">Log In</a>
+		  </div>
+
+		  <div class="col s6">
+		  	<h3>Sign Up</h3>
+		  	<div class="input-field col s12">
+		      <input value="" id="usernameRegTxt" type="text" class="validate">
+		      <label class="active" for="usernameReg">Username</label>
+		    </div>
+			<div class="input-field col s12">
+		      <input value="" id="passwordRegTxt" type="password" class="validate">
+		      <label class="active" for="passwordReg">Password</label>
+		    </div> 
+		    <div class="input-field col s12">
+		      <input value="" id="emailRegTxt" type="text" class="validate">
+		      <label class="active" for="email">Email</label>
+		    </div>
+			<a href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="registerUser()">Sign Up</a>
+		  </div>
+
+		</div>
+		<div class="modal-footer">
+		  <i></i>
+		</div>
+	</div>
+
+
 </body>
 
 

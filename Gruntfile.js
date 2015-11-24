@@ -22,17 +22,17 @@ module.exports = function(grunt) {
           beautify:true
         },
         files: {  // My JS files and other libraries
-          'public_html/js/osc.min.js': ['public_html/js/own_components/*.js', 'public_html/js/bower_components/*.js', 'public_html/js/bower_components/*/*.js']
+          'public_html/js/osc.min.js': ['public_html/js/own_components/*.js']
         }
       },
       dist:{  // well compressed JS for distribution
         options:{
           compress: true,
-          wrap: true,
+          wrap: false,
           mangle:true
         },
         files: {  // My JS files and other libraries
-          'public_html/js/osc.min.js': ['public_html/js/own_components/*.js', 'public_html/js/bower_components/*.js', 'public_html/js/bower_components/*/*.js']
+          'public_html/js/osc.min.js': ['public_html/js/bower_components/*/*.js', 'public_html/js/bower_components/*.js', 'public_html/js/own_components/*.js']
         }
       }
     },
