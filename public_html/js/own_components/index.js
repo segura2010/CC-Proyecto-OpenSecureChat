@@ -7,6 +7,7 @@ var KEY_SIZE = 1024;
 
 function init()
 {
+	getConfig();
 }
 
 function getConfig()
@@ -48,7 +49,7 @@ function registerUser()
 
 	// user password will be the plain password and email Hash
 	var password = CryptoJS.SHA256(email + plainPassword);
-	password.toString(CryptoJS.enc.Base64);
+	password = password.toString(CryptoJS.enc.Base64);
 
 	// Generate public/private keys
 	JSE.getKey(function () {
@@ -56,14 +57,15 @@ function registerUser()
 		var public_key = JSE.getPublicKey();
 
 		// encrypt private key
-		var private_keyEnc = CryptoJS.AES.encrypt(private_key, plainPassword);
+		var private_keyEnc = CryptoJS.AES.encrypt(private_key, plainPassword).toString();
+		//alert(private_keyEnc);
 
 		var registrationData = {
 			username: username,
 			email: email,
 			password: password,
 			public_key: public_key,
-			private_key: private_key,
+			private_key: private_keyEnc,
 			picture: null
 		};
 
@@ -77,16 +79,15 @@ function resgistrationResponse(err, r)
 {
 	if(err)
 	{
-		dangerAlert(err);
+		return dangerAlert(err);
 	}
-	else
-	{
-		successAlert("Successfuly registrated!");
 
-		localStorage.setItem("password", r.password);
-		localStorage.setItem("public_key", r.public_key);
-		localStorage.setItem("private_key", r.private_key); // Encrypted with plain text password!!
-	}
+	successAlert("Successfuly!");
+
+	localStorage.setItem("username", r.username);
+	localStorage.setItem("password", r.password);
+	localStorage.setItem("public_key", r.public_key);
+	localStorage.setItem("private_key", r.private_key); // Encrypted with plain text password!
 }
 
 

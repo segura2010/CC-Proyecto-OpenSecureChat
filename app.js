@@ -15,6 +15,8 @@ var redis = require("redis");
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
+// JSON Parser
+var bodyParser = require('body-parser')
 
 // Libs for SocketIO (using the http server)
 var io = require('socket.io')(http);
@@ -41,6 +43,8 @@ User.prepareIndexes();
 
 // Initialize HTTP Server
 app.use(express.static('public_html'));
+app.use( bodyParser.json() ); 
+
 // Listen on port
 http.listen(PORT, function(){
 	console.log('listening on *:'+ PORT);
@@ -59,10 +63,11 @@ app.get("/api/config", function(req, res){
 });
 
 
+
 // SocketIO Events
 io.on('connection', function (socket) {
 	socket.on('register', function (data, cb){
-		console.log(data);
+		//console.log(data);
 		User.add(data, cb);
 	});
 });
