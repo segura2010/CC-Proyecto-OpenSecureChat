@@ -9,7 +9,8 @@
   "main": "app.js",
   "scripts": {
     "test": "mocha",
-    "start": "node app.js"
+    "start": "node app.js",
+    "postinstall": "grunt setup"
   },
   "dependencies": {
     "body-parser": "^1.14.1",
