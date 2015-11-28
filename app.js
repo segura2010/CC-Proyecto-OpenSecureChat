@@ -72,9 +72,9 @@ app.get("/api/config", function(req, res){
 		p = 80;
 	}
 
-	var url = "http://" + URI + ":" + PORT + "/";
+	var url = "http://" + URI + ":" + p + "/";
 
-	res.send('{"SOCKETIO_URL":"'+url+'", "KEY_SIZE":"'+KEY_SIZE+'"}');
+	res.end('{"SOCKETIO_URL":"'+url+'", "KEY_SIZE":"'+KEY_SIZE+'"}');
 });
 
 
