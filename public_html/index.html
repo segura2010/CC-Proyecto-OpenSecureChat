@@ -37,7 +37,13 @@
 <body>
 	<h2>OpenSecureChat - Index</h2>
 
-	<a href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="showRegisterUserModal()">Sign In</a>
+	<div id="menu">
+		<a id="logInBtn" href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="showRegisterUserModal()">Log In</a>
+
+		<a id="logOutBtn" style="display:none" href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="logOut()">Log Out</a>
+
+		<span id="welcomeMsg" style="display:none">Welcome <span id="welcomeUsername"></span>!</span>
+	</div>
 
 
 	<!-- login and register modal -->
@@ -47,29 +53,29 @@
 		  <div class="col s6">
 		  	<h3>Log In</h3>
 		  	<div class="input-field col s12">
-		      <input value="" id="username" type="text" class="validate">
-		      <label class="active" for="username">Username</label>
+		      <input value="" id="emailLogInTxt" type="text" class="validate">
+		      <label class="active" for="emailLogInTxt">Email</label>
 		    </div>
 			<div class="input-field col s12">
-		      <input value="" id="password" type="password" class="validate">
-		      <label class="active" for="password">Password</label>
+		      <input value="" id="passwordLogInTxt" type="password" class="validate">
+		      <label class="active" for="passwordLogInTxt">Password</label>
 		    </div> 
-			<a href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="logIn()">Log In</a>
+			<a href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="logInUser()">Log In</a>
 		  </div>
 
 		  <div class="col s6">
 		  	<h3>Sign Up</h3>
 		  	<div class="input-field col s12">
 		      <input value="" id="usernameRegTxt" type="text" class="validate">
-		      <label class="active" for="usernameReg">Username</label>
+		      <label class="active" for="usernameRegTxt">Username</label>
 		    </div>
 			<div class="input-field col s12">
 		      <input value="" id="passwordRegTxt" type="password" class="validate">
-		      <label class="active" for="passwordReg">Password</label>
+		      <label class="active" for="passwordRegTxt">Password</label>
 		    </div> 
 		    <div class="input-field col s12">
 		      <input value="" id="emailRegTxt" type="text" class="validate">
-		      <label class="active" for="email">Email</label>
+		      <label class="active" for="emailRegTxt">Email</label>
 		    </div>
 			<a href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="registerUser()">Sign Up</a>
 		  </div>
@@ -79,6 +85,7 @@
 		  <i></i>
 		</div>
 	</div>
+
 
 
 </body>

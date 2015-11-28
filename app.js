@@ -2,6 +2,7 @@
 // Get config from enviroment vars
 var PORT = process.env.PORT || 3000;
 var URI = process.env.URI || "localhost";
+var KEY_SIZE = process.env.KEY_SIZE || 2048;
 
 
 // Libs for MongoDB
@@ -59,7 +60,7 @@ app.get("/api/config", function(req, res){
 
 	var url = "http://" + URI + ":" + PORT + "/";
 
-	res.send('{"SOCKETIO_URL":"'+url+'", "KEY_SIZE":"1024"}');
+	res.send('{"SOCKETIO_URL":"'+url+'", "KEY_SIZE":"'+KEY_SIZE+'"}');
 });
 
 
@@ -69,6 +70,17 @@ io.on('connection', function (socket) {
 	socket.on('register', function (data, cb){
 		//console.log(data);
 		User.add(data, cb);
+	});
+
+	socket.on('login', function (password, cb){
+		//console.log(password);
+		User.getByPassword(password, function(err, data){
+			if(data.length <= 0)
+			{
+				return cb("Not Found", null);
+			}
+			cb(null, data[0]);
+		});
 	});
 });
 
