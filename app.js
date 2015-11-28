@@ -3,7 +3,11 @@
 var PORT = process.env.PORT || 3000;
 var URI = process.env.URI || "localhost";
 var KEY_SIZE = process.env.KEY_SIZE || 2048;
+var MONGODB_URL = process.env.MONGODB_URL || 'localhost:27017/opensecurechat';
+var REDIS_URL = process.env.REDIS_URL || null;
 
+// Parse redis URL
+var url = require('url');
 
 // Libs for MongoDB
 var mongo = require('mongodb');
@@ -23,9 +27,19 @@ var bodyParser = require('body-parser')
 var io = require('socket.io')(http);
 
 // Initialize dbmongo
-var dbmongo = monk('localhost:27017/opensecurechat');
+var dbmongo = monk(MONGODB_URL);
+var dbredis = null;
 // Initialize redis
-var dbredis = redis.createClient();
+if(REDIS_URL)
+{
+	var redisURL = url.parse(REDIS_URL);
+	dbredis = redis.createClient(redisURL.port, redisURL.hostname, {no_ready_check: true, auth_pass: redisURL.auth.split(":")[1]});
+
+}
+else
+{
+	dbredis = redis.createClient();
+}
 
 // Get DB
 var usersdb = dbmongo.get("users");
