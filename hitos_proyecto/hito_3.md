@@ -1,0 +1,25 @@
+## Hito 3
+
+En este hito, el principal objetivo era desplegar el sistema en un PaaS, de forma que conociesemos las diferentes posibilidades de PaaS y como funcionan.
+
+En mi caso he elegido Heroku. El motivo por el que he elegido este servicio es que es gratuito y cumple con los requisitos de entrega de este hito. Además, ya conocía este PaaS de haberlo utilizado antes en proyectos personales, por lo que es un añadido el hecho de conocer el servicio, y conocer algunos de los problemas que me había encontrado antes (por ejemplo al subir una aplicación con una base de datos Mongo y tareas Grunt).
+
+Mi proyecto hace uso de dos bases de datos: MongoDB y Redis, además de servir la aplicación web a través de Express (NodeJS). Para configurar estas bases de datos me he registrado en [MongoLab](http://mongolab.com/) y [RedisLabs](http://redislabs.com/), ya que estos servicios ofrecen bases de datos de forma gratuita (aunque con limitación de espacio). Una vez tenía las bases de datos creadas en estos servicios DBaaS (Database as a Service), he adaptado la aplicación para que use las bases de datos creadas y no las bases de datos locales. Para ello, he hecho uso de las variables de entorno, que es como suele hacerlo todo el mundo. En mi aplicación NodeJS, solamente hago uso de las variables de entorno con variables del tipo `process.env.MONGODB_URL` o `process.env.REDIS_URL`. En el fichero principal de la aplicación [app.js](https://github.com/segura2010/CC-Proyecto-OpenSecureChat/blob/master/app.js) podemos ver, justo al principio, como obtengo las variables de entorno necesarias (de las BD y otras) para poder hacer funcionar la aplicación correctamente. En el modo en el que esta hecho, se utilizan las variables de entorno si estás están fijadas, en caso de que no se hayan configurado se utilizará una configuración por defecto para conectar la aplicación a BDs locales (usando los puertos habitules).
+
+![](http://i.imgur.com/52BKfE1.png)
+
+Una vez tenemos las variables de entorno configuradas en el panel de Heroku, la aplicación debe funcionar perfectamente al desplegarla. Para desplegar la aplicación he configurado Travis, de forma que, al pasar los tests, la aplicación se despliegue en Heroku automáticamente. Para ello, he configurado Heroku en el fichero [.travis.yml](https://github.com/segura2010/CC-Proyecto-OpenSecureChat/blob/master/.travis.yml). Como podemos ver, lo he configurado de forma que solamente desplegará el sistema cuando hagamos push sobre la rama `production`(evidentemente después de comprobar que esta rama supera satisfactoriamente los tests). Además, solamente hará el despligue para la versión `0.10.13` de NodeJS, por lo que el requisito será que los tests de Travis de esa versión pasen los tests. De este modo conseguimos que el despliegue funcione bien, pues si ponemos esta restricción se tratará de hacer el despligue al mismo tiempo cuando se pasen los tests de todas las versiones que tengamos configuradas. Además, la versión que nos interesa que funcione es la `0.10.13`, pues es la que hemos indicado en el fichero [package.json](https://github.com/segura2010/CC-Proyecto-OpenSecureChat/blob/master/package.json) y la que usará Heroku para hacer funcionar nuestra aplicación. El motivo de usar esta versión (que no es de las más recientes) es que es la que uso en mi ordenador para pruebas en local, y con ella se instalan correctamente las dependencias necesarias para la aplicación (concretamente la librería de Mongo, que es la que me ha dado problemas en otras versiones; por algún motivo en Heroku me ha dado problemas).
+
+También debemos tener en cuenta el fichero [Procfile](https://github.com/segura2010/CC-Proyecto-OpenSecureChat/blob/master/Procfile), en el que se le indica a Heroku como iniciar la aplicación web. Sin el nuestra aplicación no funcionará.
+
+Con todo esto configurado, lo único que tenemos que hacer para desplegar nuestra aplicación en Heroku es hacer `git push origin production` para subir los cambios en la rama "production". Una vez hacemos push, Travis pasará los tests al código, y en caso de que todos pasen correctamente en la versión `0.10.13` de Node, desplegará la aplicación en Heroku haciendo uso de la API y del token cifrado indicado en el fichero [.travis.yml](https://github.com/segura2010/CC-Proyecto-OpenSecureChat/blob/master/.travis.yml). Obteniendo el siguiente resultado en el test de Travis:
+
+![](http://imgur.com/KyTWkyN.png)
+
+Y el siguiente resultado si consultamos el log de Heroku con `heroku logs`
+
+![](http://imgur.com/HAl3hAX.png)
+
+Como podemos ver, Heroku ha recibido las peticiones a través de la API para hacer el despliegue, y se ha realizado correctamente.
+
+Y con todo esto, ya tenemos todo funcionando para desplegar de forma sencilla nuestra aplicación, al mismo tiempo que se comprueba que todo sigue funcionando correctamente. Fácil, rápido y para toda la familia. Ahora, solamente tenemos que ir añadiendo funcionalidad a la rama `master`, y cuando este lista toda la funcionalidad que deseemos desplegar, simplemente hacemos `merge` de las ramas master y production, y hacemos push de la rama production.
