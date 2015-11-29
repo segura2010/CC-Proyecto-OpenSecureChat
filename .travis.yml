@@ -11,7 +11,8 @@ services:
 deploy:
   provider: heroku
   app: osc-test
-  on: production
-  node: 0.10.13
+  on:
+    branch: production
+    node: 0.10.13
   api_key:
     secure: cOWLY4sG5JC+yn5VASPVEzbKd1RXi/rKU28sefvGKd/zCr6hfTc5ha4oa8gVD6bkMKrKv4P+xWIiuOjL3A6q9NIJFF4Q5o+9kXIbHDKNIgE5U6vJGq7JbWmnt+R6cpc9y8yhVaL8XfGhI7VjgQ1zgzmWMKI4JsStjmQe0Q9CvAeBQ7H2gpjD0ml4/clAVHkkHRegr6olhZ7feIJFB9Karmiw0ss9uCbDqSn38TN09g6X4rGGeSMBEk7D/KVA1+AnbH1yXCHAb7skJqwksQ5nSNxALL5mt5xbFtMYKiky6XkUnM7/5jzIzwyo4I+vo5juLtzHcG9fnq+OTQIhrYOkTZ6HyaHeujSrRt8WlYY94pGeW8uq/Pr6oAu2NvpT8pZCZit74N719jdMlVdSVpRQFTkfr5lN33ED/M8X6Fi5EgV/mcbQ+YNUOJnzCbX2QPkMGFV/+pUQ8te9eJhukpraO9TaiYmqLDxeqwI+P9SGB98K9bZTaGszZLe7jeApCZNyP9G4W8VZWRspYxio47pcM6LEms9Vb7e14AaeVbdgjyYmCTiNHUNWUFdIFvYs+gymKSxOA9daPBA4+MF934HcHaM0foDQBdKkOUx+B0HgIM9Vf7eOORgpgxrwDllrT9Asv5gLRjQochnRullXVqtzaqqW31pUbC7OVYiVQwZRgJc=
