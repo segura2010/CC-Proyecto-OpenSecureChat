@@ -2,6 +2,10 @@
 # Sistema de Mensajería Instantanea (Chat)
 ___
 
+![](https://img.shields.io/badge/node-0.10.13-blue.svg)
+![](https://img.shields.io/badge/license-GPLv2-blue.svg)
+![](https://img.shields.io/github/issues/segura2010/CC-Proyecto-OpenSecureChat.svg)
+
 [![Build Status](https://travis-ci.org/segura2010/CC-Proyecto-OpenSecureChat.svg?branch=master)](https://travis-ci.org/segura2010/CC-Proyecto-OpenSecureChat) [![Dependencies Status](https://david-dm.org/segura2010/CC-Proyecto-OpenSecureChat.svg)](https://david-dm.org) [![Code Climate](https://codeclimate.com/github/segura2010/CC-Proyecto-OpenSecureChat/badges/gpa.svg)](https://codeclimate.com/github/segura2010/CC-Proyecto-OpenSecureChat)
 
 
