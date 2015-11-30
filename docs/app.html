@@ -72,11 +72,15 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Get config file (config.json)</p>
+              <p>Get config from enviroment vars</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> config = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./config.json'</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> PORT = process.env.PORT || <span class="hljs-number">3000</span>;
+<span class="hljs-keyword">var</span> URI = process.env.URI || <span class="hljs-string">"localhost"</span>;
+<span class="hljs-keyword">var</span> KEY_SIZE = process.env.KEY_SIZE || <span class="hljs-number">2048</span>;
+<span class="hljs-keyword">var</span> MONGODB_URL = process.env.MONGODB_URL || <span class="hljs-string">'localhost:27017/opensecurechat'</span>;
+<span class="hljs-keyword">var</span> REDIS_URL = process.env.REDIS_URL || <span class="hljs-literal">null</span>;</pre></div></div>
             
         </li>
         
@@ -86,6 +90,21 @@
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Parse redis URL</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> url = <span class="hljs-built_in">require</span>(<span class="hljs-string">'url'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
               <p>Libs for MongoDB</p>
 
@@ -97,11 +116,11 @@
         </li>
         
         
-        <li id="section-4">
+        <li id="section-5">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-4">&#182;</a>
+                <a class="pilcrow" href="#section-5">&#182;</a>
               </div>
               <p>Libs for RedisDB</p>
 
@@ -112,11 +131,11 @@
         </li>
         
         
-        <li id="section-5">
+        <li id="section-6">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
+                <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
               <p>Libs for HTTP Server (Web)</p>
 
@@ -129,32 +148,17 @@
         </li>
         
         
-        <li id="section-6">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-6">&#182;</a>
-              </div>
-              <p>Libs for SocketIO (using the http server)</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> io = <span class="hljs-built_in">require</span>(<span class="hljs-string">'socket.io'</span>)(http);</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-7">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              <p>Initialize dbmongo</p>
+              <p>JSON Parser</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> dbmongo = monk(<span class="hljs-string">'localhost:27017/opensecurechat'</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> bodyParser = <span class="hljs-built_in">require</span>(<span class="hljs-string">'body-parser'</span>)</pre></div></div>
             
         </li>
         
@@ -165,11 +169,11 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
-              <p>Initialize redis</p>
+              <p>Libs for SocketIO (using the http server)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> dbredis = redis.createClient();</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> io = <span class="hljs-built_in">require</span>(<span class="hljs-string">'socket.io'</span>)(http);</pre></div></div>
             
         </li>
         
@@ -180,11 +184,12 @@
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p>Get DB</p>
+              <p>Initialize dbmongo</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> usersdb = dbmongo.get(<span class="hljs-string">"users"</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> dbmongo = monk(MONGODB_URL);
+<span class="hljs-keyword">var</span> dbredis = <span class="hljs-literal">null</span>;</pre></div></div>
             
         </li>
         
@@ -194,6 +199,45 @@
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Initialize redis</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span>(REDIS_URL)
+{
+	<span class="hljs-keyword">var</span> redisURL = url.parse(REDIS_URL);
+	dbredis = redis.createClient(redisURL.port, redisURL.hostname, {no_ready_check: <span class="hljs-literal">true</span>, auth_pass: redisURL.auth.split(<span class="hljs-string">":"</span>)[<span class="hljs-number">1</span>]});
+
+}
+<span class="hljs-keyword">else</span>
+{
+	dbredis = redis.createClient();
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Get DB</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> usersdb = dbmongo.get(<span class="hljs-string">"users"</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
               <p>Import my libraries</p>
 
@@ -205,11 +249,11 @@
         </li>
         
         
-        <li id="section-11">
+        <li id="section-13">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
+                <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
               <p>Create controllers</p>
 
@@ -221,11 +265,11 @@
         </li>
         
         
-        <li id="section-12">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <p>Prepare DB Indexes</p>
 
@@ -236,52 +280,102 @@
         </li>
         
         
-        <li id="section-13">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
-              </div>
-              <p>Initialize HTTP Server</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>app.use(express.static(<span class="hljs-string">'public_html'</span>));</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-14">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
-              </div>
-              <p>Listen on port</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>http.listen(config.httpServer.port, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
-	<span class="hljs-built_in">console</span>.log(<span class="hljs-string">'listening on *:'</span>+ config.httpServer.port);
-});</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
+              <p>Initialize HTTP Server</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>app.use(express.static(<span class="hljs-string">'public_html'</span>));
+app.use( bodyParser.json() );</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>Listen on port</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>http.listen(PORT, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>)</span>{
+	<span class="hljs-built_in">console</span>.log(<span class="hljs-string">'listening on *:'</span>+ PORT);
+});
+
+app.get(<span class="hljs-string">"/api/config"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">req, res</span>)</span>{
+	p = PORT;
+	<span class="hljs-keyword">if</span>(URI.indexOf(<span class="hljs-string">"heroku"</span>)&gt;=<span class="hljs-number">0</span>)
+	{
+		p = <span class="hljs-number">80</span>;
+	}
+
+	<span class="hljs-keyword">var</span> url = <span class="hljs-string">"http://"</span> + URI + <span class="hljs-string">":"</span> + p + <span class="hljs-string">"/"</span>;
+
+	res.end(<span class="hljs-string">'{"SOCKETIO_URL":"'</span>+url+<span class="hljs-string">'", "KEY_SIZE":"'</span>+KEY_SIZE+<span class="hljs-string">'"}'</span>);
+});</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
               <p>SocketIO Events</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>io.on(<span class="hljs-string">'connection'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">socket</span>) </span>{
-	socket.emit(<span class="hljs-string">'something'</span>, { hello: <span class="hljs-string">'world'</span> });
-	socket.on(<span class="hljs-string">'hello'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">data</span>)</span>{
-		<span class="hljs-built_in">console</span>.log(data);
+	socket.on(<span class="hljs-string">'register'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">data, cb</span>)</span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>console.log(data);</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		User.add(data, cb);
+	});
+
+	socket.on(<span class="hljs-string">'login'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">password, cb</span>)</span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p>console.log(password);</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>		User.getByPassword(password, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>)</span>{
+			<span class="hljs-keyword">if</span>(data.length &lt;= <span class="hljs-number">0</span>)
+			{
+				<span class="hljs-keyword">return</span> cb(<span class="hljs-string">"Not Found"</span>, <span class="hljs-literal">null</span>);
+			}
+			cb(<span class="hljs-literal">null</span>, data[<span class="hljs-number">0</span>]);
+		});
 	});
 });</pre></div></div>
             
