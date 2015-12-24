@@ -141,6 +141,8 @@ function showWelcome()
 		$("#welcomeMsg").show();
 
 		$("#welcomeUsername").html(localStorage.getItem("username"));
+
+		getChats();
 	}
 }
 
@@ -159,7 +161,56 @@ function logOut()
 	location.reload();
 }
 
+function scrollToRecentMessage()
+{
+	var conversation = document.getElementById("chatWindow");
+	conversation.scrollTop = conversation.scrollHeight;
+}
 
+function sendMessage()
+{
+	var username = $("#chatWith").html();
+	var message = $("#messageTxt").val();
+	$("#messageTxt").val("");
+	$("#chatWindow").append(getMessageChatTemplate(username, message, 1));
+	scrollToRecentMessage();
+	sendMessageTo(username, message);
+}
+
+function deleteMessages()
+{
+	if(confirm("Sure?"))
+	{
+		var username = $("#chatWith").html();
+		deleteMessagesWith(username);
+	}
+}
+
+function deleteMessagesWith(username)
+{
+	var data = {
+		token: localStorage.getItem("password"),
+		username: username
+	};
+
+	socket.emit("deleteMessagesWith", data, function(err, messages){
+		if(err)
+		{
+			return dangerAlert(err);
+		}
+
+		successAlert("Deleted!");
+		/*
+		console.log(messages);
+		for(m in messages)
+		{
+			JSE.setPrivateKey(localStorage.getItem("private_key"));
+			message = JSE.decrypt(m);
+			console.log(message);
+		}
+		*/
+	});
+}
 
 function sendMessageTo(username, msg)
 {
@@ -193,6 +244,8 @@ function sendMessageTo(username, msg)
 
 }
 
+
+
 function getChats()
 {
 	var data = {
@@ -204,8 +257,44 @@ function getChats()
 		{
 			return dangerAlert(err);
 		}
-		console.log(r);
+		renderRecentChats(r);
 	});
+}
+
+function renderRecentChats(chats)
+{
+	$("#userChats").html("");
+	for(c in chats)
+	{
+		var username = chats[c].username;
+		var picture = chats[c].picture;
+		//var unread = chats[c].unread;
+		$("#userChats").append(getRecentChatTemplate(picture, username));
+	}
+}
+
+
+function getRecentChatTemplate(picture, username)
+{
+	var template = '<a href="#!" style="color:#92959E"><li class="clearfix" onclick="getMessagesWith(\'{username}\')">'
+	          +'<img src="{picture}" alt="avatar" onerror="setDefaultPicture(this)" class="circle" style="width:50px" />'
+	          +'<div class="about">'
+	          +'<div class="name">{username}</div>'
+	          +'  <div class="status">'
+	          +'    ...'
+	          +'  </div>'
+	          +'</div>'
+	        +'</li></a>';
+
+	template = template.replace(/\{username\}/g, username).replace(/\{picture\}/g, picture);
+
+	return template;
+}
+
+
+function setDefaultPicture(obj)
+{
+	obj.src = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxQSEhUUEhQUFRUUFxUUFRQUFRQVFBQUFBQWFhQUFBQYHCggGBwlHBQUITEhJSksLi4uFx8zODMsNygtLiwBCgoKDQwNDwwMDisZFBkrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrK//AABEIAOEA4QMBIgACEQEDEQH/xAAcAAEAAQUBAQAAAAAAAAAAAAAAAQMEBQYHAgj/xAA8EAACAQIDBAUJBwMFAAAAAAAAAQIDEQQhMQUGElFBYXGBkQcTIlJyobGywSMyM2KCwtEkNEIUU5Ki4f/EABUBAQEAAAAAAAAAAAAAAAAAAAAB/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8A3IMAqAAAIAAAAAAAAkgAAAAAAAAASQAAAAAAAAAAAAAAACSAAAAAkgAAABJAAAAASQQ5EcYHokp+cPSkBIFwAJIAAAASQAAAAEkEkAAAAAAAAAAAAAAAA8yYEtlGdUpV61jJ7H3dnWtOq3CDzS/zkuef3V1v/wBAxE8SVqeEry+7RqNc+CSXizfsDsylRX2cIxfrayfbJ5suyK5zLZ2IWtGp3K/wLedSUXacZRfKScX4M6ceKtKMlaUVJPokk14MDnFOuXEZGd2pupCV5UHwS9V3cH9Y/DqNYfFTk4TTjKOqfx6+0qL1MFOE7lQAAAJIJIAAAAAAAAAABgSQAAJIAAAAC3rzK82WNZOTUVrJqK7W7L3gZrdbZCqy89UV4RdoRekpLVvml8ew3Qo4PDqnCMI6RSS7ul9ZWIoAAAAAGJ3g2OsRDLKpFehL9r6n7jLADmVCbWTyadmnqmsmmXsWV968L5vEcS0qri/Uspftfey0osqKoAAEkAAAAJIAAEkAAASBAAAAEgQAAPNQpbNzxNG/+5H45FSoWuGqcNek+VSn4cauB0wAEUAAAAAAABqu/WlHnefhaN/oYOgzL791PTox6qj8eBL4Mw+HKi4AAEkEkAAABJBJAAAAACQIAAAkhCwAAAUqzKWztl1MTUtBpcFpSk9Fn6OnS7PwPWIZs25NK1GUumVR+CSSXx8QNhABFAAAAAAAAapvlsqpNqtFpxpws458Vrtyku5rwMBhpHSJwTTT0aafYzmeHjZ25NrwdgL9AiJJUAAAAAEkCwAWAAEkAAASQAAJAgAAUK8TYdycUnCdP/KMuJdcZW+qfijBTRbRrTpTU6btJeDXSmulAdLBh929svExm5RUZQaTSbaaa1z06fA1XZm+ONxO1MTQoUKU8JhKlOjWbbjXvNyi6sW5cMknCbcbX4Y5XbRFdCBqXlE36o7Ko8UrTrzT8zRvnJ+vPlBc+nRdXzzifKftSdV1f9XUi73UIKKpx5JU7WaXXd87gfWYPk3aPlQ2pWmpPFzha1o0lGnDLmorPvudY8k/lW/1jjhcc4xxDypVsoxrv1JJZRqcrZS6nqHWgaV5S94MdgqLrYOjRlTpJTrTrt6OSioU4Rkm30tt6NWu9Nk2XtVVsJSxNnGNWjCvwvWKnTU7N9VwLvGYlU4SnLSKbf8AC63oc4oXbu9W2+95lztHblTFWUkoQWfBHO75yfSeaMLFRWiSEgBJAJAgAAASQAv1gAAAAAAAAEgQAADKFaBXPM0Bdbm4jgryg9Kkcvahdr3OZgt+vJ5jHip47ZOIdGrVS89S85KmptK14yWTvZejLK93crSm6c4zjlKLUl2rn1HRNmY6NenGpDR6rpjJaxfWiK+aMd5MNuV6jnXoTqTk7OpUxNCb75Oo3ZG4bleQxxqRq7RqQlGLusPSbalp+LUaVlr6Mb359B3EAc08o3klo7QfnsNKOHxFkn6P2NVRVoqajnBqyXEk8lo+jk2L8ju1oStHDxqJaTp1qKi+zjlGXuPqQAcH2T5Nts41QpbTxVWnhotOVOVfz1SSTuklFuN8snJvh5PQ65vDKOHwbp00ox4Y0KcVoo24eFdkE/Azhoe8201XrKMHeFO6utJSf3n2ZWXfzAxuFpl9FFKjGxWKgAAAAAAAACSAAAAEkAAAABJBIEAACSGLnmUwLbExM9uCvRre1H4M17E1DYtwHeFZ/mj8oG1gAigAAt9o/hVPYn8rOZ4GOSOm4/8ACqexL5WcvwdQDLQR7KNOZVTKgAAJIAAAACSCSAAFiQIBJAAAAAQ5FKdUCq2eJVC1qYix7weDrV/woSa9Z5R/5PJ9wE1K5QVSUnwwTlJ6KKbfgjZcBuf0153/ACQyXfJ5vusbHg8FTpK1OEYrqWb7Xq+8itQwG6VWpnWl5uPqq0pv6R9/YbZs3ZtOhHhpRsnm3e7k+bbLsAAAAAAESimrPNPJrmjV9pbnQd5UJcD9SV3DuesfebSAOaYvCVaDtVg4r1tYv9Sy+pFPEHS5RTVnmn0Mwe0N1aNTOF6Uvyfd74aeFgNXhVKikesbu/iKWaj5yPOGb74a+FzHQxPQ9elPVFRkQW8KxVjMD2AmSBFgAAAuSBAAAMpznY9TZbRhKpNQgryk7JfFvq1Ap1cQZLAbu162cvso85L0n2Q/mxs2xtg06CTfp1OmbWnVBdC95liKw2z92qFLNx85L1qmfhHReBmUgAAAAAAAAAAAAAAAAABZ4/ZlKt+JBSfraSXZJZl4ANQx+6Mo50J3/JPJ90ll4rvMDVU6cuGpFxlyfT1p6NdaOmlDGYOFWPDUipLr6OtPVPrQGgU6pWTPW2tkSw0k03KnJ2jJ6p+rL+ShSmVFcgAAASBAAAo12ZTcmjerUn6sVFfrbb+X3mIxDNi3Eh9nVlzqW8Ip/uA2YAEUAAAAAAAAAAAAAAAAAAAAAAABjd4qHHhqq5Rc12w9L6Gi4WZ0jEQ4oSjzi14qxzHAyyQGTQIiSVAAAAwGBa4lm0bjx/p5PnUk/wDrFfQ1bFG2blL+m/XP4gZ4AEUAAAAAAAAAAAAAAAAAAAAAAAAOW4ZWduTa8GdSOYR+/P2pfMwL+BJ5geioEkACSGABZ4nQ27cz+2XtT+Y1PEo23c3+2XtT+JFZwAAAAAAAAAAAAAAAAAAAAAAAAAADmL/En7c/mZ045k19pP25fMwLyB6IgSVC4AAMEgC2r6G17n/2/wCufxAIrOAAAAAAAAAAAAAAAAAAAAAAAAAAAc1f35e1L5gALqJJIKgAAP/Z";
 }
 
 function getMessagesWith(username)
@@ -220,6 +309,9 @@ function getMessagesWith(username)
 		{
 			return dangerAlert(err);
 		}
+
+		renderChatMessages(messages, username);
+		/*
 		console.log(messages);
 		for(m in messages)
 		{
@@ -227,7 +319,58 @@ function getMessagesWith(username)
 			message = JSE.decrypt(m);
 			console.log(message);
 		}
+		*/
 	});
+}
+
+function renderChatMessages(messages, username)
+{
+	$("#chatWindow").html("");
+	$("#chatWith").html(username);
+	$("#chatPicture").html("");
+	$("#chatNumMessages").html(messages.length);
+	for(m in messages)
+	{
+		JSE.setPrivateKey(localStorage.getItem("private_key"));
+		var realMessage = m.replace(/\[[0-9]+\]/g, "");
+		var message = JSE.decrypt(realMessage);
+		var isMe = messages[m];
+		$("#chatWindow").append(getMessageChatTemplate(username, message, isMe));
+	}
+}
+
+function getMessageChatTemplate(username, message, isMe)
+{
+	var alignClass = "align-right";
+	var myMessage = "message my-message";
+	var otherMessage = "message other-message float-right";
+
+	var messageClass = otherMessage;
+	var usernamePosition = '<span class="message-data-name"><i class="fa fa-circle online"></i> {username}</span><span class="message-data-time"></span>';
+	if(isMe == 0)
+	{
+		alignClass = "";
+		messageClass = myMessage;
+		usernamePosition = '<span class="message-data-time" ></span> &nbsp; &nbsp;<span class="message-data-name" >{username}</span> <i class="fa fa-circle me"></i>';
+	}
+	else
+	{
+		username = localStorage.getItem("username");
+	}
+
+	var template = '<li class="clearfix">'
+    +'<div class="message-data '+alignClass+'">'
+      + usernamePosition
+    +'</div>'
+    +'<div class="'+ messageClass +'">'
+      +'{message}'
+    +'</div>'
+  	+'</li>';
+
+
+  	template = template.replace(/\{username\}/g, username).replace(/\{message\}/g, message);
+
+	return template;
 }
 
 init();

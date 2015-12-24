@@ -12,6 +12,7 @@ var url = require('url');
 // Libs for MongoDB
 var mongo = require('mongodb');
 var monk = require('monk');
+var ObjectID = require('mongodb').ObjectID;
 
 // Libs for RedisDB
 var redis = require("redis");
@@ -162,7 +163,30 @@ io.on('connection', function (socket) {
 				return cb("Invalid token", null);
 			}
 
-			Chat.getChatsForUser(user._id, cb);
+			Chat.getChatsForUser(user._id, function(err, chats){
+				if(err)
+				{
+					return cb("Error obtaining chats", null);
+				}
+
+				var users = [];
+				for(c in chats)
+				{
+					users.push( new ObjectID(c) );
+				}
+
+				User.getUsersById(users, function(err, usersResult){
+					for(u in usersResult)
+					{	// add unread count and remove private data
+						//usersResult[u]["unread"] = users[usersResult._id];
+						usersResult[u].email = "";
+						usersResult[u].password = "";
+						usersResult[u].private_key = "";
+					}
+
+					cb(null, usersResult);
+				});
+			});
 		});
 	});
 
@@ -181,6 +205,25 @@ io.on('connection', function (socket) {
 				}
 
 				Chat.getChatMessages(user._id, userWith._id, cb);
+			});
+		});
+	});
+
+	socket.on('deleteMessagesWith', function (data, cb){
+		User.getByUsername(data.username, function(err, userWith){
+			userWith = userWith[0];
+			if(err || !userWith)
+			{
+				return cb("User does not exists", null);
+			}
+			User.getByPassword(data.token, function(err, user){
+				user = user[0];
+				if(err || !user)
+				{
+					return cb("Invalid token", null);
+				}
+
+				Chat.deleteChatMessages(user._id, userWith._id, cb);
 			});
 		});
 	});

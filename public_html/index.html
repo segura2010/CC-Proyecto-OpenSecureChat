@@ -6,9 +6,6 @@
 	<!--Import Google Icon Font-->
     <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-	<!-- Prepare CSS -->
-	<link type="text/css" rel="stylesheet" href="css/osc.min.css"/>
-
 	<!-- Prepare SocketIO and JS files -->
 	<script src="socket.io/socket.io.js"></script>
 
@@ -30,12 +27,15 @@
   <!-- Compiled and minified JavaScript -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/js/materialize.min.js"></script>
 
+	<!-- Prepare CSS -->
+	<link type="text/css" rel="stylesheet" href="css/resetosc.min.css"/>
+	<link type="text/css" rel="stylesheet" href="css/styleosc.min.css"/>
+
 
 </head>
 
 
 <body>
-	<h2>OpenSecureChat - Index</h2>
 
 	<div id="menu">
 		<a id="logInBtn" href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="showRegisterUserModal()">Log In</a>
@@ -46,6 +46,88 @@
 	</div>
 
 
+	<!-- Chats Content -->
+	  <div class="container clearfix" style="max-height:815px">
+	    <div class="people-list" id="people-list">
+	      <div class="search">
+	        <input type="text" placeholder="search" />
+	        <i class="fa fa-search"></i>
+	      </div>
+	      <ul id="userChats" class="list">
+	        
+	        <!--
+	        <li class="clearfix">
+	          <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01.jpg" alt="avatar" />
+	          <div class="about">
+	            <div class="name">Vincent Porter</div>
+	            <div class="status">
+	              <i class="fa fa-circle online"></i> online
+	            </div>
+	          </div>
+	        </li>
+	    	-->
+	        
+	        
+	      </ul>
+	    </div>
+	    
+	    <div class="chat" style="max-height:815px">
+	      <div class="chat-header clearfix">
+	        <img id="chatPicture" src="" onerror="setDefaultPicture(this)" alt="avatar" class="circle" style="width:70px" />
+	        
+	        <div class="chat-about">
+	          <div id="chatWith" class="chat-with">Anyone</div>
+	          <div id="chatNumMessages" class="chat-num-messages">0</div>
+	        </div>
+	        <a href="#!" onclick="deleteMessages()" style="color:red"><i class="material-icons right">delete</i></a>
+	      </div> <!-- end chat-header -->
+	      
+	      <div class="chat-history">
+	        <ul id="chatWindow" >
+
+	        	<!--
+	          <li class="clearfix">
+	            <div class="message-data align-right">
+	              <span class="message-data-time" >10:10 AM, Today</span> &nbsp; &nbsp;
+	              <span class="message-data-name" >Olia</span> <i class="fa fa-circle me"></i>
+	              
+	            </div>
+	            <div class="message other-message float-right">
+	              Hi Vincent, how are you? How is the project coming along?
+	            </div>
+	          </li>
+	          
+	          <li>
+	            <div class="message-data">
+	              <span class="message-data-name"><i class="fa fa-circle online"></i> Vincent</span>
+	              <span class="message-data-time">10:12 AM, Today</span>
+	            </div>
+	            <div class="message my-message">
+	              Are we meeting today? Project has been already finished and I have results to show you.
+	            </div>
+	          </li>
+	      		-->
+	          
+	        </ul>
+	        
+	      </div> <!-- end chat-history -->
+	      
+	      <div class="chat-message clearfix">
+	        <textarea name="message-to-send" id="messageTxt" placeholder ="Type your message" rows="3"></textarea>
+	        
+	        <button onclick="sendMessage()">Send</button>
+
+	      </div> <!-- end chat-message -->
+	      
+	    </div> <!-- end chat -->
+	    
+	  </div> <!-- end container -->
+
+
+
+
+
+
 	<!-- login and register modal -->
 	<div id="loginAndRegister" class="modal">
 		<div class="modal-content row">
@@ -53,11 +135,11 @@
 		  <div class="col s6">
 		  	<h3>Log In</h3>
 		  	<div class="input-field col s12">
-		      <input value="" id="emailLogInTxt" type="text" class="validate">
+		      <input value="" style="color:black" id="emailLogInTxt" type="text" class="validate">
 		      <label class="active" for="emailLogInTxt">Email</label>
 		    </div>
 			<div class="input-field col s12">
-		      <input value="" id="passwordLogInTxt" type="password" class="validate">
+		      <input value="" style="color:black" id="passwordLogInTxt" type="password" class="validate">
 		      <label class="active" for="passwordLogInTxt">Password</label>
 		    </div> 
 			<a href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="logInUser()">Log In</a>
@@ -66,15 +148,15 @@
 		  <div class="col s6">
 		  	<h3>Sign Up</h3>
 		  	<div class="input-field col s12">
-		      <input value="" id="usernameRegTxt" type="text" class="validate">
+		      <input value="" style="color:black" id="usernameRegTxt" type="text" class="validate">
 		      <label class="active" for="usernameRegTxt">Username</label>
 		    </div>
 			<div class="input-field col s12">
-		      <input value="" id="passwordRegTxt" type="password" class="validate">
+		      <input value="" style="color:black" id="passwordRegTxt" type="password" class="validate">
 		      <label class="active" for="passwordRegTxt">Password</label>
 		    </div> 
 		    <div class="input-field col s12">
-		      <input value="" id="emailRegTxt" type="text" class="validate">
+		      <input value="" style="color:black" id="emailRegTxt" type="text" class="validate">
 		      <label class="active" for="emailRegTxt">Email</label>
 		    </div>
 			<a href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="registerUser()">Sign Up</a>
