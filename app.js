@@ -91,9 +91,97 @@ io.on('connection', function (socket) {
 		User.getByPassword(password, function(err, data){
 			if(data.length <= 0)
 			{
-				return cb("Not Found", null);
+				return cb("User Not Found", null);
 			}
 			cb(null, data[0]);
+		});
+	});
+
+	socket.on('getUserPublicKey', function (username, cb){
+		//console.log(data);
+		User.getByUsername(username, function(err, user){
+			user = user[0];
+			if(err || !user)
+			{
+				return cb("Unable to get PublicKey for user", null);
+			}
+			
+			return cb(null, user.public_key);
+		});
+	});
+
+	socket.on('getUserInfo', function (username, cb){
+		//console.log(data);
+		User.getByUsername(username, function(err, user){
+			user = user[0];
+			if(err || !user)
+			{
+				return cb("Unable to get PublicKey for user", null);
+			}
+			
+			// remove private information
+			user.email = "";
+			user.password = "";
+			user.private_key = "";
+
+			return cb(null, user);
+		});
+	});
+
+	socket.on('sendMessage', function (data, cb){
+		//console.log(data);
+		User.getByUsername(data.username, function(err, userTo){
+			userTo = userTo[0];
+			if(err || !userTo)
+			{
+				return cb("User does not exists", null);
+			}
+
+			User.getByPassword(data.token, function(err, userFrom){
+				userFrom = userFrom[0];
+				if(err || !userFrom)
+				{
+					return cb("Invalid token", null);
+				}
+
+				var encryptedMsgUser = data.msgFrom;
+				var encryptedMsgToUser = data.msgTo;
+
+				Chat.add(userFrom._id, userTo._id, encryptedMsgUser, encryptedMsgToUser, function(){
+					cb(null, "");
+				});
+			});
+		});
+	});
+
+	socket.on('getChats', function (data, cb){
+		User.getByPassword(data.token, function(err, user){
+			user = user[0];
+			if(err || !user)
+			{
+				return cb("Invalid token", null);
+			}
+
+			Chat.getChatsForUser(user._id, cb);
+		});
+	});
+
+	socket.on('getMessagesWith', function (data, cb){
+		User.getByUsername(data.username, function(err, userWith){
+			userWith = userWith[0];
+			if(err || !userWith)
+			{
+				return cb("User does not exists", null);
+			}
+			User.getByPassword(data.token, function(err, user){
+				user = user[0];
+				if(err || !user)
+				{
+					return cb("Invalid token", null);
+				}
+
+				Chat.getChatMessages(user._id, userWith._id, cb);
+			});
 		});
 	});
 });

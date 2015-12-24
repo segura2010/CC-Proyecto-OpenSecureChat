@@ -144,6 +144,14 @@ function showWelcome()
 	}
 }
 
+function setUpKeys()
+{
+	if(isLoggedIn())
+	{
+		JSE.setPrivateKey(localStorage.getItem("private_key"));
+	}
+}
+
 function logOut()
 {
 	localStorage.clear();
@@ -151,5 +159,75 @@ function logOut()
 	location.reload();
 }
 
+
+
+function sendMessageTo(username, msg)
+{
+
+	var messageData = {
+		token: localStorage.getItem("password"),
+		username: username,
+		msgFrom: "", // After of encrypt
+		msgTo: "" // After of encrypt
+	};
+
+	socket.emit("getUserPublicKey", username, function(err, public_key){
+		if(err)
+		{
+			return dangerAlert(err);
+		}
+
+		// Encrypt message to send
+		JSE.setPublicKey(public_key);
+		messageData.msgTo = JSE.encrypt(msg);
+		JSE.setPublicKey(localStorage.getItem("public_key"));
+		messageData.msgFrom = JSE.encrypt(msg);
+	
+		socket.emit("sendMessage", messageData, function(err, r){
+			if(err)
+			{
+				return dangerAlert(err);
+			}
+		});
+	});
+
+}
+
+function getChats()
+{
+	var data = {
+		token: localStorage.getItem("password")
+	};
+
+	socket.emit("getChats", data, function(err, r){
+		if(err)
+		{
+			return dangerAlert(err);
+		}
+		console.log(r);
+	});
+}
+
+function getMessagesWith(username)
+{
+	var data = {
+		token: localStorage.getItem("password"),
+		username: username
+	};
+
+	socket.emit("getMessagesWith", data, function(err, messages){
+		if(err)
+		{
+			return dangerAlert(err);
+		}
+		console.log(messages);
+		for(m in messages)
+		{
+			JSE.setPrivateKey(localStorage.getItem("private_key"));
+			message = JSE.decrypt(m);
+			console.log(message);
+		}
+	});
+}
 
 init();
