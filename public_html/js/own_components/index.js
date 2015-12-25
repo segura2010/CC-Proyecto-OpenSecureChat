@@ -310,7 +310,7 @@ function renderRecentChats(chats)
 
 function getRecentChatTemplate(picture, username)
 {
-	var template = '<a href="#!" style="color:#92959E"><li class="clearfix" onclick="getMessagesWith(\'{username}\')">'
+	var template = '<a class="recentChat" href="#!" style="color:#92959E"><li class="clearfix" onclick="getMessagesWith(\'{username}\')">'
 	          +'<img src="{picture}" alt="avatar" onerror="setDefaultPicture(this)" class="circle" style="width:50px" />'
 	          +'<div class="about">'
 	          +'<div class="name">{username}</div>'
@@ -411,6 +411,25 @@ function getMessageChatTemplate(username, message, isMe)
   	template = template.replace(/\{username\}/g, username).replace(/\{message\}/g, message);
 
 	return template;
+}
+
+
+function filterRecentChats()
+{
+	var chats = $(".recentChat");
+	var username = $("#recentSearchTxt").val();
+	for(c in chats)
+	{
+		var cUsername = $(chats[c]).find(".name").html();
+		if(cUsername.indexOf(username) < 0 && username != "")
+		{
+			$(chats[c]).hide();
+		}
+		else
+		{
+			$(chats[c]).show();
+		}
+	}
 }
 
 init();
