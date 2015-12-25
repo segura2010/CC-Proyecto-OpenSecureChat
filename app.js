@@ -149,6 +149,10 @@ io.on('connection', function (socket) {
 				var encryptedMsgToUser = data.msgTo;
 
 				Chat.add(userFrom._id, userTo._id, encryptedMsgUser, encryptedMsgToUser, function(){
+					
+					// Send real time message
+					io.sockets.in(userTo.password).emit('newMessage', {message: encryptedMsgToUser, username:userFrom.username} );
+					
 					cb(null, "");
 				});
 			});
@@ -227,6 +231,11 @@ io.on('connection', function (socket) {
 			});
 		});
 	});
+
+	socket.on('join', function (room, cb){
+		socket.join(room);
+	});
+
 });
 
 

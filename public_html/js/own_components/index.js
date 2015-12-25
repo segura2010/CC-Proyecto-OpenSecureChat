@@ -8,10 +8,17 @@ var KEY_SIZE = 2048;
 var PLAIN_PASSWORD = "";
 var MIN_PASSWORD_LENGTH = 8;
 
+// save a cache of chats
+var CHATS = {};
+
 function init()
 {
 	getConfig();
+}
 
+function setUpSocketIOEvents()
+{
+	socket.on("newMessage", newMessageRecived);
 }
 
 function getConfig()
@@ -25,6 +32,8 @@ function getConfig()
 		JSE = new JSEncrypt({default_key_size: KEY_SIZE});
 
 		showWelcome();
+		setUpIORooms();
+		setUpSocketIOEvents();
 
 	}).fail(function(e){
 		dangerAlert("Unable to load configuration info");
@@ -146,11 +155,11 @@ function showWelcome()
 	}
 }
 
-function setUpKeys()
+function setUpIORooms()
 {
 	if(isLoggedIn())
 	{
-		JSE.setPrivateKey(localStorage.getItem("private_key"));
+		socket.emit("join", localStorage.getItem("password"));
 	}
 }
 
@@ -171,9 +180,33 @@ function sendMessage()
 {
 	var username = $("#chatWith").html();
 	var message = $("#messageTxt").val();
+
 	$("#messageTxt").val("");
 	$("#chatWindow").prepend(getMessageChatTemplate(username, message, 1));
 	sendMessageTo(username, message);
+}
+
+function newMessageRecived(data)
+{
+	var username = $("#chatWith").html();
+
+	saveMessageOnCache( "[0]"+data.message, data.username );
+
+	if(username == data.username)
+	{
+		JSE.setPrivateKey(localStorage.getItem("private_key"));
+		var message = JSE.decrypt(data.message);
+		$("#chatWindow").prepend(getMessageChatTemplate(username, message, 0));
+	}
+	else
+	{
+		successAlert("New message from " + data.username);
+	}
+}
+
+function saveMessageOnCache(msg, username)
+{
+	CHATS[username].splice(0, 0, msg);
 }
 
 function deleteMessages()
@@ -238,6 +271,8 @@ function sendMessageTo(username, msg)
 			{
 				return dangerAlert(err);
 			}
+
+			saveMessageOnCache( "[1]"+messageData.msgFrom, username );
 		});
 	});
 
@@ -303,12 +338,17 @@ function getMessagesWith(username)
 		username: username
 	};
 
+	if(CHATS[username])
+	{
+		return renderChatMessages(CHATS[username], username);
+	}
+
 	socket.emit("getMessagesWith", data, function(err, messages){
 		if(err)
 		{
 			return dangerAlert(err);
 		}
-
+		CHATS[username] = messages;
 		renderChatMessages(messages, username);
 		/*
 		console.log(messages);
