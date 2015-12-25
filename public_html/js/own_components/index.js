@@ -38,10 +38,6 @@ function getConfig()
 		setUpIORooms();
 		setUpSocketIOEvents();
 
-		socket.emit("getUserInfo", localStorage.getItem("username"), function(err, data){
-			$("#imageProfile").prop("src", data.picture);
-		});
-
 	}).fail(function(e){
 		dangerAlert("Unable to load configuration info");
 	});
@@ -159,6 +155,9 @@ function showWelcome()
 		$("#welcomeUsername").html(localStorage.getItem("username"));
 
 		getChats();
+		socket.emit("getUserInfo", localStorage.getItem("username"), function(err, data){
+			$("#imageProfile").prop("src", data.picture);
+		});
 	}
 }
 
@@ -213,7 +212,10 @@ function newMessageRecived(data)
 
 function saveMessageOnCache(msg, username)
 {
-	CHATS[username].splice(0, 0, msg);
+	if(CHATS[username])
+	{
+		CHATS[username].splice(0, 0, msg);
+	}
 }
 
 function deleteMessages()
@@ -490,6 +492,7 @@ function uploadProfileImage(evt)
 				{
 					return dangerAlert(err);
 				}
+				$("#imageProfile").prop("src", image);
 			});
 		};
 	})(f);
