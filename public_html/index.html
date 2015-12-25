@@ -69,6 +69,9 @@
 	        
 	        
 	      </ul>
+
+	      <a class="btn-floating btn-large waves-effect waves-light red" style="position:absolute;top:790px;left:360px;" onclick="newChat()"><i class="material-icons">add</i></a>
+	    
 	    </div>
 	    
 	    <div class="chat" style="max-height:815px">
@@ -126,6 +129,12 @@
 
 
 
+	  <!-- Footer -->
+	  <br><br><br>
+	  <div id="footer" style="align:center;">
+	  	<a href="https://github.com/segura2010/CC-Proyecto-OpenSecureChat" target="_blank"><img src="images/github.png"> Fork me on Github</a>
+	  </div>
+
 
 
 	<!-- login and register modal -->
@@ -165,6 +174,33 @@
 		</div>
 		<div class="modal-footer">
 		  <i></i>
+		</div>
+	</div>
+
+	<!-- new chat modal -->
+	<div id="newChat" class="modal">
+		<div class="modal-content row">
+
+		  <div class="col s6">
+		  	<h3>New Chat</h3>
+		  	<div class="input-field col s12">
+		      <input value="" style="color:black" id="newChatUsernameTxt" type="text" class="validate">
+		      <label class="active" for="newChatUsernameTxt">Username</label>
+		    </div>
+		    <div class="input-field col s12">
+		      <input value="" style="color:black" id="newChatMessageTxt" type="text" class="validate">
+		      <label class="active" for="newChatMessageTxt">Message</label>
+		    </div>
+			<a href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="createChat()">Create</a>
+		  </div>
+
+		  <div class="col s6">
+		  	
+		  </div>
+
+		</div>
+		<div class="modal-footer">
+		  <i>Put the username of the other user to create the chat</i>
 		</div>
 	</div>
 

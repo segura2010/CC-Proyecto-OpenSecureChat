@@ -432,4 +432,17 @@ function filterRecentChats()
 	}
 }
 
+function newChat()
+{
+	$("#newChat").openModal();
+}
+
+function createChat()
+{
+	var username = $("#newChatUsernameTxt").val();
+	var message = $("#newChatMessageTxt").val();
+	sendMessageTo(username, message);
+	getChats();
+}
+
 init();
