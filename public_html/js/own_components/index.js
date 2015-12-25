@@ -172,8 +172,7 @@ function sendMessage()
 	var username = $("#chatWith").html();
 	var message = $("#messageTxt").val();
 	$("#messageTxt").val("");
-	$("#chatWindow").append(getMessageChatTemplate(username, message, 1));
-	scrollToRecentMessage();
+	$("#chatWindow").prepend(getMessageChatTemplate(username, message, 1));
 	sendMessageTo(username, message);
 }
 
@@ -330,11 +329,12 @@ function renderChatMessages(messages, username)
 	$("#chatPicture").html("");
 	$("#chatNumMessages").html(messages.length);
 	for(m in messages)
-	{
+	{	// Message Schema: [sender]encryptedMessage -> Sender = 1 (if is me) or = 0 is not me
+		var msg = messages[m];
 		JSE.setPrivateKey(localStorage.getItem("private_key"));
-		var realMessage = m.replace(/\[[0-9]+\]/g, "");
+		var isMe = parseInt( msg[1] );
+		var realMessage = msg.replace(/\[[0-9]\]/g, "");
 		var message = JSE.decrypt(realMessage);
-		var isMe = messages[m];
 		$("#chatWindow").append(getMessageChatTemplate(username, message, isMe));
 	}
 }
