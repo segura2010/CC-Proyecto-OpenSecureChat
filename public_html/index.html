@@ -35,7 +35,7 @@
 </head>
 
 
-<body>
+<body onload="init()">
 
 	<div id="menu">
 		<a id="logInBtn" href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="showRegisterUserModal()">Log In</a>
@@ -70,7 +70,15 @@
 	        
 	      </ul>
 
-	      <a class="btn-floating btn-large waves-effect waves-light red" style="position:absolute;top:790px;left:360px;" onclick="newChat()"><i class="material-icons">add</i></a>
+
+	    <div style="position:absolute;top:790px;left:360px;">
+	    	<img id="imageProfile" src="" class="circle" style="width:80px" onerror="setDefaultPicture(this)">
+	    </div>
+
+	    <div style="position:absolute;top:801px;left:490px;">
+			<a class="btn-floating btn-large waves-effect waves-light red" onclick="newChat()"><i class="material-icons">add</i></a>
+			<a class="btn-floating btn waves-effect waves-light blue" onclick="showEditProfile()"><i class="material-icons">settings</i></a>
+	  	</div>
 	    
 	    </div>
 	    
@@ -201,6 +209,27 @@
 		</div>
 		<div class="modal-footer">
 		  <i>Put the username of the other user to create the chat</i>
+		</div>
+	</div>
+
+
+	<!-- edit profile modal -->
+	<div id="editProfile" class="modal">
+		<div class="modal-content row">
+
+			<h3>Edit Profile</h3>
+		  	
+		  	<img id="editProfileImage" src="" class="circle" style="width:120px" onerror="setDefaultPicture(this)">
+		  	<br>
+			<input type="file" id="profileImageInput">
+
+		  	<!--
+		  	<a href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="">Save</a>
+		  	-->
+
+		</div>
+		<div class="modal-footer">
+		  <i></i>
 		</div>
 	</div>
 

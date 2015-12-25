@@ -232,6 +232,22 @@ io.on('connection', function (socket) {
 		});
 	});
 
+	socket.on('updateProfile', function (data, cb){
+		User.getByPassword(data.token, function(err, user){
+			user = user[0];
+			if(err || !user)
+			{
+				return cb("Invalid token", null);
+			}
+
+			var newUser = {
+				picture: data.picture
+			};
+			
+			User.update(user._id, newUser, cb);
+		});
+	});
+
 	socket.on('join', function (room, cb){
 		socket.join(room);
 	});

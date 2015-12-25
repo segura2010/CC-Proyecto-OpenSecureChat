@@ -10,9 +10,12 @@ var MIN_PASSWORD_LENGTH = 8;
 
 // save a cache of chats
 var CHATS = {};
+var USERS = [];
 
 function init()
 {
+	document.getElementById('profileImageInput').addEventListener('change', uploadProfileImage, false);
+	
 	getConfig();
 }
 
@@ -34,6 +37,10 @@ function getConfig()
 		showWelcome();
 		setUpIORooms();
 		setUpSocketIOEvents();
+
+		socket.emit("getUserInfo", localStorage.getItem("username"), function(err, data){
+			$("#imageProfile").prop("src", data.picture);
+		});
 
 	}).fail(function(e){
 		dangerAlert("Unable to load configuration info");
@@ -291,6 +298,7 @@ function getChats()
 		{
 			return dangerAlert(err);
 		}
+		USERS = r;
 		renderRecentChats(r);
 	});
 }
@@ -364,9 +372,10 @@ function getMessagesWith(username)
 
 function renderChatMessages(messages, username)
 {
+	var user = searchUserInfoOnCache(username);
 	$("#chatWindow").html("");
 	$("#chatWith").html(username);
-	$("#chatPicture").html("");
+	$("#chatPicture").prop("src", user.picture || "");
 	$("#chatNumMessages").html(messages.length);
 	for(m in messages)
 	{	// Message Schema: [sender]encryptedMessage -> Sender = 1 (if is me) or = 0 is not me
@@ -445,4 +454,60 @@ function createChat()
 	getChats();
 }
 
-init();
+function showEditProfile()
+{
+	socket.emit("getUserInfo", localStorage.getItem("username"), function(err, data){
+		$("#editProfileImage").prop("src", data.picture);
+		$("#editProfile").openModal();
+	});
+}
+
+function uploadProfileImage(evt)
+{
+    var f = evt.target.files[0];
+
+	// Only process image files.
+	if (!f.type.match('image.*'))
+	{
+		return;
+	}
+
+	var reader = new FileReader();
+
+	// Closure to capture the file information.
+	reader.onload = (function(theFile) {
+		return function(e) {
+			var image = e.target.result;
+			$("#editProfileImage").prop("src", image);
+
+			var data = {
+				token: localStorage.getItem("password"),
+				picture: image
+			};
+
+			socket.emit("updateProfile", data, function(err, d){
+				if(err)
+				{
+					return dangerAlert(err);
+				}
+			});
+		};
+	})(f);
+
+	// Read in the image file as a data URL.
+	reader.readAsDataURL(f);
+}
+
+
+function searchUserInfoOnCache(username)
+{
+	for(u in USERS)
+	{
+		if(USERS[u].username == username)
+		{
+			return USERS[u];
+		}
+	}
+}
+
+
