@@ -150,10 +150,8 @@ function showWelcome()
 {
 	if(isLoggedIn())
 	{
-		$("#logInBtn").hide();
-
-		$("#logOutBtn").show();
-		$("#welcomeMsg").show();
+		$("#logUserBtn").removeClass("green");
+		$("#logUserBtn").addClass("red");
 
 		$("#welcomeUsername").html(localStorage.getItem("username"));
 
@@ -161,6 +159,10 @@ function showWelcome()
 		socket.emit("getUserInfo", localStorage.getItem("username"), function(err, data){
 			$("#imageProfile").prop("src", data.picture);
 		});
+	}
+	else
+	{
+		showRegisterUserModal();
 	}
 }
 
@@ -174,9 +176,15 @@ function setUpIORooms()
 
 function logOut()
 {
-	localStorage.clear();
-
-	location.reload();
+	if(isLoggedIn() && confirm("Do you want to log out?"))
+	{
+		localStorage.clear();
+		location.reload();
+	}
+	else
+	{
+		showRegisterUserModal();
+	}
 }
 
 function scrollToRecentMessage()
@@ -197,6 +205,12 @@ function sendMessage()
 
 function newMessageRecived(data)
 {
+
+	if(!searchUserInfoOnCache(data.username))
+	{
+		getChats();
+	}
+
 	var username = $("#chatWith").html();
 
 	saveMessageOnCache( "[0]"+data.message, data.username );
@@ -210,13 +224,14 @@ function newMessageRecived(data)
 
 	if(username == data.username)
 	{
+		markAsRead(data.username);
 		$("#chatWindow").prepend(getMessageChatTemplate(username, message, 0));
 	}
 	else
 	{
+		successAlert("New message from " + data.username);
 		var unread = parseInt( $("#"+data.username+"_unread").html() );
 		$("#"+data.username+"_unread").html(unread + 1);
-		successAlert("New message from " + data.username);
 	}
 }
 
@@ -230,7 +245,7 @@ function saveMessageOnCache(msg, username)
 
 function deleteMessages()
 {
-	if(confirm("Sure?"))
+	if(confirm("Are you sure? Your history with this user will be deleted, but not his history chat."))
 	{
 		var username = $("#chatWith").html();
 		deleteMessagesWith(username);

@@ -37,6 +37,7 @@
 
 <body onload="init()">
 
+	<!--
 	<div id="menu">
 		<a id="logInBtn" href="#!" class="modal-action modal-close waves-effect waves-white btn" onclick="showRegisterUserModal()">Log In</a>
 
@@ -44,6 +45,7 @@
 
 		<span id="welcomeMsg" style="display:none">Welcome <span id="welcomeUsername"></span>!</span>
 	</div>
+	-->
 
 
 	<!-- Chats Content -->
@@ -78,6 +80,8 @@
 	    <div style="position:relative;bottom:185px;left:60px;">
 			<a class="btn-floating btn-large waves-effect waves-light red" onclick="newChat()"><i class="material-icons">add</i></a>
 			<a class="btn-floating btn waves-effect waves-light blue" onclick="showEditProfile()"><i class="material-icons">settings</i></a>
+
+			<a id="logUserBtn" class="btn-floating btn waves-effect waves-light green" onclick="logOut()"><i class="material-icons">exit_to_app</i></a>
 	  	</div>
 	    
 	    </div>
