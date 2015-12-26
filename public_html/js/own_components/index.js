@@ -15,8 +15,11 @@ var USERS = [];
 function init()
 {
 	document.getElementById('profileImageInput').addEventListener('change', uploadProfileImage, false);
-	
+
 	getConfig();
+
+	// Get notification permission
+	Notification.requestPermission(function(permission){});
 }
 
 function setUpSocketIOEvents()
@@ -198,14 +201,21 @@ function newMessageRecived(data)
 
 	saveMessageOnCache( "[0]"+data.message, data.username );
 
+	JSE.setPrivateKey(localStorage.getItem("private_key"));
+	var message = JSE.decrypt(data.message);
+
+	var picture = searchUserInfoOnCache(data.username).picture;
+
+	showNavigatorNotification(data.username, message, picture);
+
 	if(username == data.username)
 	{
-		JSE.setPrivateKey(localStorage.getItem("private_key"));
-		var message = JSE.decrypt(data.message);
 		$("#chatWindow").prepend(getMessageChatTemplate(username, message, 0));
 	}
 	else
 	{
+		var unread = parseInt( $("#"+data.username+"_unread").html() );
+		$("#"+data.username+"_unread").html(unread + 1);
 		successAlert("New message from " + data.username);
 	}
 }
@@ -312,25 +322,25 @@ function renderRecentChats(chats)
 	{
 		var username = chats[c].username;
 		var picture = chats[c].picture;
-		//var unread = chats[c].unread;
-		$("#userChats").append(getRecentChatTemplate(picture, username));
+		var unread = chats[c].unread;
+		$("#userChats").append(getRecentChatTemplate(picture, username, unread));
 	}
 }
 
 
-function getRecentChatTemplate(picture, username)
+function getRecentChatTemplate(picture, username, unread)
 {
 	var template = '<a class="recentChat" href="#!" style="color:#92959E"><li class="clearfix" onclick="getMessagesWith(\'{username}\')">'
 	          +'<img src="{picture}" alt="avatar" onerror="setDefaultPicture(this)" class="circle" style="width:50px" />'
 	          +'<div class="about">'
 	          +'<div class="name">{username}</div>'
 	          +'  <div class="status">'
-	          +'    ...'
+	          +'    <span id="{username}_unread">{unread}</span> unread messages'
 	          +'  </div>'
 	          +'</div>'
 	        +'</li></a>';
 
-	template = template.replace(/\{username\}/g, username).replace(/\{picture\}/g, picture);
+	template = template.replace(/\{username\}/g, username).replace(/\{picture\}/g, picture).replace(/\{unread\}/g, unread);
 
 	return template;
 }
@@ -345,7 +355,8 @@ function getMessagesWith(username)
 {
 	var data = {
 		token: localStorage.getItem("password"),
-		username: username
+		username: username,
+		start: 0
 	};
 
 	if(CHATS[username])
@@ -353,27 +364,59 @@ function getMessagesWith(username)
 		return renderChatMessages(CHATS[username], username);
 	}
 
+	getMessagesWithPetition(data);
+}
+
+function getMoreMessagesWithLinkClick()
+{
+	var username = $("#chatWith").html();
+	getMoreMessagesWith(username);
+}
+
+function getMoreMessagesWith(username)
+{
+	var data = {
+		token: localStorage.getItem("password"),
+		username: username,
+		start: CHATS[username].length
+	};
+
+	getMessagesWithPetition(data);
+}
+
+function getMessagesWithPetition(data)
+{
 	socket.emit("getMessagesWith", data, function(err, messages){
 		if(err)
 		{
 			return dangerAlert(err);
 		}
-		CHATS[username] = messages;
-		renderChatMessages(messages, username);
-		/*
-		console.log(messages);
-		for(m in messages)
+		if(CHATS[data.username])
 		{
-			JSE.setPrivateKey(localStorage.getItem("private_key"));
-			message = JSE.decrypt(m);
-			console.log(message);
+			CHATS[data.username] = CHATS[data.username].concat(messages);
 		}
-		*/
+		else
+		{
+			CHATS[data.username] = messages;
+		}
+		renderChatMessages(CHATS[data.username], data.username);
 	});
+}
+
+function markAsRead(username)
+{
+	var data = {
+		token: localStorage.getItem("password"),
+		username: username
+	};
+
+	socket.emit("markAsRead", data, function(err, messages){});
+	$("#"+username+"_unread").html(0);
 }
 
 function renderChatMessages(messages, username)
 {
+	markAsRead(username);
 	var user = searchUserInfoOnCache(username);
 	$("#chatWindow").html("");
 	$("#chatWith").html(username);
@@ -418,6 +461,8 @@ function getMessageChatTemplate(username, message, isMe)
     +'</div>'
   	+'</li>';
 
+
+  	message = parseMessage(message);
 
   	template = template.replace(/\{username\}/g, username).replace(/\{message\}/g, message);
 
@@ -511,6 +556,48 @@ function searchUserInfoOnCache(username)
 			return USERS[u];
 		}
 	}
+}
+
+function checkSendMessage(e)
+{
+	var code = (e.keyCode ? e.keyCode : e.which);
+	if(code == 13)
+	{	//Enter keycode
+		sendMessage();
+		e.stopPropagation();
+	}
+}
+
+function sanitize(str)
+{
+	str = str.replace(/</g, '&lt;');
+	str = str.replace(/>/g, '&gt;');
+	str = str.replace(/\"/g, '&quot;');
+	str = str.replace(/\'/g, '&apos;');
+
+	return str;
+}
+
+function parseLinks(str)
+{
+	str = str.replace(/(https?:\/\/[^ ]+)/g, '<a href="$1" target="_blank">$1</a>');
+
+	return str;
+}
+
+function parseMessage(str)
+{
+	str = sanitize(str);
+	str = parseLinks(str);
+
+	return str;
+}
+
+function showNavigatorNotification(username, message, icon)
+{
+	var nTitle = username + " has sent you a message";
+	var nBody = sanitize(message);
+	var notification = new Notification(nTitle, {body:nBody, icon: icon});
 }
 
 

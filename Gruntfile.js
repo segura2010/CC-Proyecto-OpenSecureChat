@@ -69,7 +69,7 @@ module.exports = function(grunt) {
   // Tarea por omisión: generar la documentación
   grunt.registerTask('default', ['docco', 'bower', 'uglify:dist', 'cssmin']); // Generate all
   grunt.registerTask('setup', ['bower', 'uglify:dist', 'cssmin']); // Install JS client packages with bower and then, compress and minify ALL (bower JS and my own JS, and CSS)
-  grunt.registerTask('dev', ['bower', 'uglify:dev', 'cssmin']); // dev mode
+  grunt.registerTask('dev', ['uglify:dev', 'cssmin']); // dev mode
   grunt.registerTask('min', ['uglify:dist', 'cssmin']);
   grunt.registerTask('heroku', ['bower', 'uglify:dist', 'cssmin']); // heroku task
 };

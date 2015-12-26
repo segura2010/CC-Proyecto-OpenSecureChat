@@ -71,11 +71,11 @@
 	      </ul>
 
 
-	    <div style="position:absolute;top:790px;left:360px;">
+	    <div style="position:relative;bottom:200px;left:20px;">
 	    	<img id="imageProfile" src="" class="circle" style="width:80px" onerror="setDefaultPicture(this)">
 	    </div>
 
-	    <div style="position:absolute;top:801px;left:490px;">
+	    <div style="position:relative;bottom:185px;left:60px;">
 			<a class="btn-floating btn-large waves-effect waves-light red" onclick="newChat()"><i class="material-icons">add</i></a>
 			<a class="btn-floating btn waves-effect waves-light blue" onclick="showEditProfile()"><i class="material-icons">settings</i></a>
 	  	</div>
@@ -120,11 +120,15 @@
 	      		-->
 	          
 	        </ul>
+
+	        <div style="text-align:center">
+	        	<a href="#!" onclick="getMoreMessagesWithLinkClick()">Load More</a>
+	        </div>
 	        
 	      </div> <!-- end chat-history -->
 	      
 	      <div class="chat-message clearfix">
-	        <textarea name="message-to-send" id="messageTxt" placeholder ="Type your message" rows="3"></textarea>
+	        <textarea name="message-to-send" id="messageTxt" placeholder ="Type your message" rows="3" onkeypress="checkSendMessage(event)"></textarea>
 	        
 	        <button onclick="sendMessage()">Send</button>
 

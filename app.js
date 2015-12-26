@@ -182,7 +182,7 @@ io.on('connection', function (socket) {
 				User.getUsersById(users, function(err, usersResult){
 					for(u in usersResult)
 					{	// add unread count and remove private data
-						//usersResult[u]["unread"] = users[usersResult._id];
+						usersResult[u]["unread"] = chats[usersResult[u]._id.toString()];
 						usersResult[u].email = "";
 						usersResult[u].password = "";
 						usersResult[u].private_key = "";
@@ -208,7 +208,7 @@ io.on('connection', function (socket) {
 					return cb("Invalid token", null);
 				}
 
-				Chat.getChatMessages(user._id, userWith._id, cb);
+				Chat.getChatMessages(user._id, userWith._id, data.start, cb);
 			});
 		});
 	});
@@ -245,6 +245,25 @@ io.on('connection', function (socket) {
 			};
 			
 			User.update(user._id, newUser, cb);
+		});
+	});
+
+	socket.on('markAsRead', function (data, cb){
+		User.getByUsername(data.username, function(err, userWith){
+			userWith = userWith[0];
+			if(err || !userWith)
+			{
+				return cb("User does not exists", null);
+			}
+			User.getByPassword(data.token, function(err, user){
+				user = user[0];
+				if(err || !user)
+				{
+					return cb("Invalid token", null);
+				}
+
+				Chat.markAsRead(user._id, userWith._id, cb);
+			});
 		});
 	});
 
