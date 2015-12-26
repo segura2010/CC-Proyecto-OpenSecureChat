@@ -31,7 +31,7 @@ function getConfig()
 {
 	$.getJSON("/api/config", function(data){
 
-		SOCKETIO_URL = data.SOCKETIO_URL;
+		SOCKETIO_URL = location.protocol + "//" + location.host ;//data.SOCKETIO_URL;
 		KEY_SIZE = data.KEY_SIZE;
 
 		socket = io(SOCKETIO_URL);
@@ -220,8 +220,6 @@ function newMessageRecived(data)
 
 	var picture = searchUserInfoOnCache(data.username).picture;
 
-	showNavigatorNotification(data.username, message, picture);
-
 	if(username == data.username)
 	{
 		markAsRead(data.username);
@@ -233,6 +231,8 @@ function newMessageRecived(data)
 		var unread = parseInt( $("#"+data.username+"_unread").html() );
 		$("#"+data.username+"_unread").html(unread + 1);
 	}
+
+	showNavigatorNotification(data.username, message, picture);
 }
 
 function saveMessageOnCache(msg, username)
@@ -346,7 +346,7 @@ function renderRecentChats(chats)
 function getRecentChatTemplate(picture, username, unread)
 {
 	var template = '<a class="recentChat" href="#!" style="color:#92959E"><li class="clearfix" onclick="getMessagesWith(\'{username}\')">'
-	          +'<img src="{picture}" alt="avatar" onerror="setDefaultPicture(this)" class="circle" style="width:50px" />'
+	          +'<img src="{picture}" alt="avatar" onerror="setDefaultPicture(this)" class="circle" style="width:50px;height:50px" />'
 	          +'<div class="about">'
 	          +'<div class="name">{username}</div>'
 	          +'  <div class="status">'

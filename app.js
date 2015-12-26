@@ -5,6 +5,7 @@ var URI = process.env.URI || "localhost";
 var KEY_SIZE = process.env.KEY_SIZE || 2048;
 var MONGODB_URL = process.env.MONGODB_URL || 'localhost:27017/opensecurechat';
 var REDIS_URL = process.env.REDIS_URL || null;
+var PROFILE_PICTURE_MAX_SIZE = process.env.PROFILE_PICTURE_MAX_SIZE || 1000000; // in bytes; default = 1MB = 1000000
 
 // Parse redis URL
 var url = require('url');
@@ -238,6 +239,11 @@ io.on('connection', function (socket) {
 			if(err || !user)
 			{
 				return cb("Invalid token", null);
+			}
+
+			if(data.picture.length > PROFILE_PICTURE_MAX_SIZE)
+			{
+				return cb("Profile picture is too large :(", null);
 			}
 
 			var newUser = {
