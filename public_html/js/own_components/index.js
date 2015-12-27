@@ -37,9 +37,9 @@ function getConfig()
 		socket = io(SOCKETIO_URL);
 		JSE = new JSEncrypt({default_key_size: KEY_SIZE});
 
-		showWelcome();
 		setUpIORooms();
 		setUpSocketIOEvents();
+		showWelcome();
 
 	}).fail(function(e){
 		dangerAlert("Unable to load configuration info");
@@ -255,7 +255,6 @@ function deleteMessages()
 function deleteMessagesWith(username)
 {
 	var data = {
-		token: localStorage.getItem("password"),
 		username: username
 	};
 
@@ -282,7 +281,6 @@ function sendMessageTo(username, msg)
 {
 
 	var messageData = {
-		token: localStorage.getItem("password"),
 		username: username,
 		msgFrom: "", // After of encrypt
 		msgTo: "" // After of encrypt
@@ -316,9 +314,7 @@ function sendMessageTo(username, msg)
 
 function getChats()
 {
-	var data = {
-		token: localStorage.getItem("password")
-	};
+	var data = {};
 
 	socket.emit("getChats", data, function(err, r){
 		if(err)
@@ -369,7 +365,6 @@ function setDefaultPicture(obj)
 function getMessagesWith(username)
 {
 	var data = {
-		token: localStorage.getItem("password"),
 		username: username,
 		start: 0
 	};
@@ -391,7 +386,6 @@ function getMoreMessagesWithLinkClick()
 function getMoreMessagesWith(username)
 {
 	var data = {
-		token: localStorage.getItem("password"),
 		username: username,
 		start: CHATS[username].length
 	};
@@ -421,7 +415,6 @@ function getMessagesWithPetition(data)
 function markAsRead(username)
 {
 	var data = {
-		token: localStorage.getItem("password"),
 		username: username
 	};
 
@@ -543,7 +536,6 @@ function uploadProfileImage(evt)
 			$("#editProfileImage").prop("src", image);
 
 			var data = {
-				token: localStorage.getItem("password"),
 				picture: image
 			};
 

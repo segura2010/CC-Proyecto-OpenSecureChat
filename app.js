@@ -89,7 +89,6 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('login', function (password, cb){
-		//console.log(password);
 		User.getByPassword(password, function(err, data){
 			if(data.length <= 0)
 			{
@@ -139,7 +138,7 @@ io.on('connection', function (socket) {
 				return cb("User does not exists", null);
 			}
 
-			User.getByPassword(data.token, function(err, userFrom){
+			User.getByPassword(socket.token, function(err, userFrom){
 				userFrom = userFrom[0];
 				if(err || !userFrom)
 				{
@@ -161,7 +160,7 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('getChats', function (data, cb){
-		User.getByPassword(data.token, function(err, user){
+		User.getByPassword(socket.token, function(err, user){
 			user = user[0];
 			if(err || !user)
 			{
@@ -202,7 +201,7 @@ io.on('connection', function (socket) {
 			{
 				return cb("User does not exists", null);
 			}
-			User.getByPassword(data.token, function(err, user){
+			User.getByPassword(socket.token, function(err, user){
 				user = user[0];
 				if(err || !user)
 				{
@@ -221,7 +220,7 @@ io.on('connection', function (socket) {
 			{
 				return cb("User does not exists", null);
 			}
-			User.getByPassword(data.token, function(err, user){
+			User.getByPassword(socket.token, function(err, user){
 				user = user[0];
 				if(err || !user)
 				{
@@ -234,7 +233,7 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('updateProfile', function (data, cb){
-		User.getByPassword(data.token, function(err, user){
+		User.getByPassword(socket.token, function(err, user){
 			user = user[0];
 			if(err || !user)
 			{
@@ -261,7 +260,7 @@ io.on('connection', function (socket) {
 			{
 				return cb("User does not exists", null);
 			}
-			User.getByPassword(data.token, function(err, user){
+			User.getByPassword(socket.token, function(err, user){
 				user = user[0];
 				if(err || !user)
 				{
@@ -274,6 +273,7 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('join', function (room, cb){
+		socket.token = room;
 		socket.join(room);
 	});
 
