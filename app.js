@@ -321,7 +321,7 @@ io.on('connection', function (socket) {
 				var encryptedMsgToUser = data.fileTo;
 
 				var f = { name:data.name,
-					content:encryptedMsgUser,
+					content:data.content,
 					keys:{}
 				};
 				f.keys[userTo._id.toString()] = data.fileTo;
