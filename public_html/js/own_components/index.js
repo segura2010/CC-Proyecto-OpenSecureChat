@@ -25,6 +25,9 @@ function init()
 function setUpSocketIOEvents()
 {
 	socket.on("newMessage", newMessageRecived);
+	socket.on("connect", setUpIORooms);
+	socket.on("reconnect", reconnectedToServer);
+	socket.on("disconnect", disconnectedFromServer);
 }
 
 function getConfig()
@@ -164,6 +167,16 @@ function showWelcome()
 	{
 		showRegisterUserModal();
 	}
+}
+
+function disconnectedFromServer()
+{
+	dangerAlert("You have lost the connection with the server. We will try to reconnect as soon as possible.");
+}
+
+function reconnectedToServer()
+{
+	successAlert("Reconnected to the server!");
 }
 
 function setUpIORooms()
