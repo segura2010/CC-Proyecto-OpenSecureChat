@@ -220,7 +220,7 @@ function sendMessage()
 	var message = $("#messageTxt").val();
 
 	$("#messageTxt").val("");
-	$("#chatWindow").prepend(getMessageChatTemplate(username, message, 1, true));
+	$("#chatWindow").prepend(getMessageChatTemplate(username, message, 1, true, 0));
 	sendMessageTo(username, message);
 }
 
@@ -234,17 +234,19 @@ function newMessageRecived(data)
 
 	var username = $("#chatWith").html();
 
-	saveMessageOnCache( "[0]"+data.message, data.username );
+	var isFile = data.isFile ? "1" : "0";
+
+	saveMessageOnCache( "[0"+ isFile +"]"+data.message, data.username );
 
 	JSE.setPrivateKey(localStorage.getItem("private_key"));
-	var message = JSE.decrypt(data.message);
+	var message = isFile ? data.message : JSE.decrypt(data.message);
 
 	var picture = searchUserInfoOnCache(data.username).picture;
 
 	if(username == data.username)
 	{
 		markAsRead(data.username);
-		$("#chatWindow").prepend(getMessageChatTemplate(username, message, 0));
+		$("#chatWindow").prepend(getMessageChatTemplate(username, message, 0, isFile));
 	}
 	else
 	{
@@ -475,12 +477,12 @@ function renderChatMessages(messages, username)
 		myMsgs = isMe ? myMsgs+1 : myMsgs;
 
 		var realMessage = msg.replace(/\[[0-9]+\]/g, "");
-		var message = isFile ? realMessage+" FILE" : JSE.decrypt(realMessage);
-		$("#chatWindow").append(getMessageChatTemplate(username, message, isMe, isUnread));
+		var message = isFile ? realMessage : JSE.decrypt(realMessage);
+		$("#chatWindow").append(getMessageChatTemplate(username, message, isMe, isUnread, isFile));
 	}
 }
 
-function getMessageChatTemplate(username, message, isMe, isUnread)
+function getMessageChatTemplate(username, message, isMe, isUnread, isFile)
 {
 	var alignClass = "align-right";
 	var myMessage = "message my-message";
@@ -514,6 +516,11 @@ function getMessageChatTemplate(username, message, isMe, isUnread)
 
 
   	message = parseMessage(message);
+
+  	if(isFile)
+	{
+		message = "<i class='material-icons'>attach_file</i> " + message;
+	}
 
   	template = template.replace(/\{username\}/g, username).replace(/\{message\}/g, message);
 
@@ -619,7 +626,7 @@ function uploadFile(evt)
 				var fileFrom = JSE.encrypt(randomKey);
 
 				var data = {
-					content: content
+					content: content,
 					fileFrom: fileFrom,
 					fileTo: fileTo,
 					name: f.name,
@@ -631,6 +638,9 @@ function uploadFile(evt)
 					{
 						return dangerAlert(err);
 					}
+
+					var username = $("#chatWith").html();
+					$("#chatWindow").prepend(getMessageChatTemplate(username, message, 1, true, 1));
 				});
 			});
 		};

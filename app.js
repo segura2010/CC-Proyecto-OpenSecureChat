@@ -303,8 +303,6 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('sendFile', function (data, cb){
-		console.log(data.name);
-		//console.log(data);
 		User.getByUsername(data.username, function(err, userTo){
 			userTo = userTo[0];
 			if(err || !userTo)
@@ -322,20 +320,25 @@ io.on('connection', function (socket) {
 				var encryptedMsgUser = data.fileFrom;
 				var encryptedMsgToUser = data.fileTo;
 
-				var f = { name:data.name, content:encryptedMsgUser };
-				UploadedFile.add(f, function(err, fileFrom){
+				var f = { name:data.name,
+					content:encryptedMsgUser,
+					keys:{}
+				};
+				f.keys[userTo._id.toString()] = data.fileTo;
+				f.keys[userFrom._id.toString()] = data.fileFrom;
+				
+				UploadedFile.add(f, function(err, uFile){
 					if(err)
 					{
 						return cb("Error saving file", null);
 					}
-					f = { name:data.name, content:encryptedMsgUser };
 
-					Chat.add(userFrom._id, userTo._id, fileFrom._id.toString(), fileTo._id.toString(), 1, function(){
+					Chat.add(userFrom._id, userTo._id, uFile._id.toString(), uFile._id.toString(), 1, function(){
 						
 						// Send real time message
-						io.sockets.in(userTo.password).emit('newMessage', {message: encryptedMsgToUser, username:userFrom.username} );
+						io.sockets.in(userTo.password).emit('newMessage', {message: uFile._id.toString(), username:userFrom.username, isFile:1} );
 						
-						cb(null, "");
+						cb(null, uFile._id.toString());
 					});
 				});
 			});
