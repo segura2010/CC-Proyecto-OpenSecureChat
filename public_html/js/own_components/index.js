@@ -15,6 +15,7 @@ var USERS = [];
 function init()
 {
 	document.getElementById('profileImageInput').addEventListener('change', uploadProfileImage, false);
+	document.getElementById('fileInput').addEventListener('change', uploadFile, false);
 
 	getConfig();
 
@@ -468,12 +469,13 @@ function renderChatMessages(messages, username)
 		var msg = messages[m];
 		JSE.setPrivateKey(localStorage.getItem("private_key"));
 		var isMe = parseInt( msg[1] );
+		var isFile = parseInt( msg[2] );
 
 		var isUnread = (myMsgs < user.ounread);
 		myMsgs = isMe ? myMsgs+1 : myMsgs;
 
-		var realMessage = msg.replace(/\[[0-9]\]/g, "");
-		var message = JSE.decrypt(realMessage);
+		var realMessage = msg.replace(/\[[0-9]+\]/g, "");
+		var message = isFile ? realMessage+" FILE" : JSE.decrypt(realMessage);
 		$("#chatWindow").append(getMessageChatTemplate(username, message, isMe, isUnread));
 	}
 }
@@ -586,6 +588,50 @@ function uploadProfileImage(evt)
 					return dangerAlert(err);
 				}
 				$("#imageProfile").prop("src", image);
+			});
+		};
+	})(f);
+
+	// Read in the image file as a data URL.
+	reader.readAsDataURL(f);
+}
+
+function uploadFile(evt)
+{
+    var f = evt.target.files[0];
+
+	var reader = new FileReader();
+
+	// Closure to capture the file information.
+	reader.onload = (function(theFile) {
+		return function(e) {
+
+			var username = $("#chatWith").html();
+
+			socket.emit("getUserPublicKey", username, function(err, public_key){
+
+				var randomKey = CryptoJS.lib.WordArray.random(128/8).toString();
+				var content = CryptoJS.AES.encrypt(e.target.result, randomKey).toString();
+				
+				JSE.setPublicKey(public_key);
+				var fileTo = JSE.encrypt(randomKey);
+				JSE.setPublicKey(localStorage.getItem("public_key"));
+				var fileFrom = JSE.encrypt(randomKey);
+
+				var data = {
+					content: content
+					fileFrom: fileFrom,
+					fileTo: fileTo,
+					name: f.name,
+					username: username
+				};
+
+				socket.emit("sendFile", data, function(err, d){
+					if(err)
+					{
+						return dangerAlert(err);
+					}
+				});
 			});
 		};
 	})(f);

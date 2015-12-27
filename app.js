@@ -6,6 +6,8 @@ var KEY_SIZE = process.env.KEY_SIZE || 2048;
 var MONGODB_URL = process.env.MONGODB_URL || 'localhost:27017/opensecurechat';
 var REDIS_URL = process.env.REDIS_URL || null;
 var PROFILE_PICTURE_MAX_SIZE = process.env.PROFILE_PICTURE_MAX_SIZE || 1000000; // in bytes; default = 1MB = 1000000
+var FILE_MAX_SIZE = process.env.FILE_MAX_SIZE || 800000; // in bytes; default = 800KB
+
 
 // Async
 var async = require('async');
@@ -48,14 +50,17 @@ else
 
 // Get DB
 var usersdb = dbmongo.get("users");
+var filesdb = dbmongo.get("files");
 
 // Import my libraries
 var UserLib = require('./lib/User.js').UserController;
 var ChatLib = require('./lib/Chat.js').ChatController;
+var UploadedFileLib = require('./lib/UploadedFile.js').UploadedFileController;
 
 // Create controllers
 var User = new UserLib(usersdb, dbredis);
 var Chat = new ChatLib(dbredis);
+var UploadedFile = new UploadedFileLib(filesdb);
 
 // Prepare DB Indexes
 User.prepareIndexes();
@@ -151,7 +156,7 @@ io.on('connection', function (socket) {
 				var encryptedMsgUser = data.msgFrom;
 				var encryptedMsgToUser = data.msgTo;
 
-				Chat.add(userFrom._id, userTo._id, encryptedMsgUser, encryptedMsgToUser, function(){
+				Chat.add(userFrom._id, userTo._id, encryptedMsgUser, encryptedMsgToUser, 0, function(){
 					
 					// Send real time message
 					io.sockets.in(userTo.password).emit('newMessage', {message: encryptedMsgToUser, username:userFrom.username} );
@@ -292,6 +297,46 @@ io.on('connection', function (socket) {
 					}
 
 					io.sockets.in(userWith.password).emit('readMessage', user.username );
+				});
+			});
+		});
+	});
+
+	socket.on('sendFile', function (data, cb){
+		console.log(data.name);
+		//console.log(data);
+		User.getByUsername(data.username, function(err, userTo){
+			userTo = userTo[0];
+			if(err || !userTo)
+			{
+				return cb("User does not exists", null);
+			}
+
+			User.getByPassword(socket.token, function(err, userFrom){
+				userFrom = userFrom[0];
+				if(err || !userFrom)
+				{
+					return cb("Invalid token", null);
+				}
+
+				var encryptedMsgUser = data.fileFrom;
+				var encryptedMsgToUser = data.fileTo;
+
+				var f = { name:data.name, content:encryptedMsgUser };
+				UploadedFile.add(f, function(err, fileFrom){
+					if(err)
+					{
+						return cb("Error saving file", null);
+					}
+					f = { name:data.name, content:encryptedMsgUser };
+
+					Chat.add(userFrom._id, userTo._id, fileFrom._id.toString(), fileTo._id.toString(), 1, function(){
+						
+						// Send real time message
+						io.sockets.in(userTo.password).emit('newMessage', {message: encryptedMsgToUser, username:userFrom.username} );
+						
+						cb(null, "");
+					});
 				});
 			});
 		});
