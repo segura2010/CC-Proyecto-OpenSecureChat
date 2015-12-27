@@ -25,6 +25,8 @@ function init()
 function setUpSocketIOEvents()
 {
 	socket.on("newMessage", newMessageRecived);
+	socket.on("readMessage", readMessage);
+
 	socket.on("connect", setUpIORooms);
 	socket.on("reconnect", reconnectedToServer);
 	socket.on("disconnect", disconnectedFromServer);
@@ -155,12 +157,14 @@ function showWelcome()
 	{
 		$("#logUserBtn").removeClass("green");
 		$("#logUserBtn").addClass("red");
+		$("#logUserBtn").attr("data-tooltip", "Log Out");
 
 		$("#welcomeUsername").html(localStorage.getItem("username"));
 
 		getChats();
 		socket.emit("getUserInfo", localStorage.getItem("username"), function(err, data){
 			$("#imageProfile").prop("src", data.picture);
+			$("#imageProfile").attr("data-tooltip", data.username);
 		});
 	}
 	else
@@ -189,10 +193,13 @@ function setUpIORooms()
 
 function logOut()
 {
-	if(isLoggedIn() && confirm("Do you want to log out?"))
+	if(isLoggedIn())
 	{
-		localStorage.clear();
-		location.reload();
+		if(confirm("Do you want to log out?"))
+		{
+			localStorage.clear();
+			location.reload();
+		}
 	}
 	else
 	{
@@ -212,7 +219,7 @@ function sendMessage()
 	var message = $("#messageTxt").val();
 
 	$("#messageTxt").val("");
-	$("#chatWindow").prepend(getMessageChatTemplate(username, message, 1));
+	$("#chatWindow").prepend(getMessageChatTemplate(username, message, 1, true));
 	sendMessageTo(username, message);
 }
 
@@ -246,6 +253,16 @@ function newMessageRecived(data)
 	}
 
 	showNavigatorNotification(data.username, message, picture);
+}
+
+function readMessage(username)
+{
+	var actUsername = $("#chatWith").html();
+	searchUserInfoOnCache(username).ounread = 0;
+	if(actUsername == username)
+	{
+		$(".unread").html("done_all");
+	}
 }
 
 function saveMessageOnCache(msg, username)
@@ -317,6 +334,7 @@ function sendMessageTo(username, msg)
 				return dangerAlert(err);
 			}
 
+			searchUserInfoOnCache(username).ounread++;
 			saveMessageOnCache( "[1]"+messageData.msgFrom, username );
 		});
 	});
@@ -443,18 +461,24 @@ function renderChatMessages(messages, username)
 	$("#chatWith").html(username);
 	$("#chatPicture").prop("src", user.picture || "");
 	$("#chatNumMessages").html(messages.length);
+
+	var myMsgs = 0;
 	for(m in messages)
 	{	// Message Schema: [sender]encryptedMessage -> Sender = 1 (if is me) or = 0 is not me
 		var msg = messages[m];
 		JSE.setPrivateKey(localStorage.getItem("private_key"));
 		var isMe = parseInt( msg[1] );
+
+		var isUnread = (myMsgs < user.ounread);
+		myMsgs = isMe ? myMsgs+1 : myMsgs;
+
 		var realMessage = msg.replace(/\[[0-9]\]/g, "");
 		var message = JSE.decrypt(realMessage);
-		$("#chatWindow").append(getMessageChatTemplate(username, message, isMe));
+		$("#chatWindow").append(getMessageChatTemplate(username, message, isMe, isUnread));
 	}
 }
 
-function getMessageChatTemplate(username, message, isMe)
+function getMessageChatTemplate(username, message, isMe, isUnread)
 {
 	var alignClass = "align-right";
 	var myMessage = "message my-message";
@@ -473,12 +497,16 @@ function getMessageChatTemplate(username, message, isMe)
 		username = localStorage.getItem("username");
 	}
 
+	var unRead = isUnread ? "done" : "done_all";
+	var unReadHidden = isMe ? "" : "style='display:none'";
+
 	var template = '<li class="clearfix">'
     +'<div class="message-data '+alignClass+'">'
       + usernamePosition
     +'</div>'
     +'<div class="'+ messageClass +'">'
       +'{message}'
+      +'<i class="material-icons unread right" '+ unReadHidden +'>'+ unRead +'</i>'
     +'</div>'
   	+'</li>';
 
@@ -524,10 +552,10 @@ function createChat()
 
 function showEditProfile()
 {
-	socket.emit("getUserInfo", localStorage.getItem("username"), function(err, data){
-		$("#editProfileImage").prop("src", data.picture);
+	//socket.emit("getUserInfo", localStorage.getItem("username"), function(err, data){
+		$("#editProfileImage").prop("src", $("#imageProfile").prop("src") );
 		$("#editProfile").openModal();
-	});
+	//});
 }
 
 function uploadProfileImage(evt)
@@ -620,4 +648,12 @@ function showNavigatorNotification(username, message, icon)
 	var notification = new Notification(nTitle, {body:nBody, icon: icon});
 }
 
+
+function materializeInit()
+{	// Materialize needs it..
+    $('.collapsible').collapsible({
+      accordion : false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+    });
+    $('.tooltipped').tooltip({delay: 50});
+}
 

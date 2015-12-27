@@ -74,14 +74,14 @@
 
 
 	    <div style="position:relative;bottom:200px;left:20px;">
-	    	<img id="imageProfile" src="" class="circle" style="width:80px;height:80px" onerror="setDefaultPicture(this)">
+	    	<img id="imageProfile" src="" class="circle tooltipped" data-position="top" data-delay="50" data-tooltip="Anyone" style="width:80px;height:80px" onerror="setDefaultPicture(this)">
 	    </div>
 
 	    <div style="position:relative;bottom:185px;left:60px;">
-			<a class="btn-floating btn-large waves-effect waves-light red" onclick="newChat()"><i class="material-icons">add</i></a>
-			<a class="btn-floating btn waves-effect waves-light blue" onclick="showEditProfile()"><i class="material-icons">settings</i></a>
+			<a class="btn-floating btn-large waves-effect waves-light red tooltipped" data-position="top" data-delay="50" data-tooltip="New chat" onclick="newChat()"><i class="material-icons">add</i></a>
+			<a class="btn-floating btn waves-effect waves-light blue tooltipped" data-position="top" data-delay="50" data-tooltip="Settings" onclick="showEditProfile()"><i class="material-icons">settings</i></a>
 
-			<a id="logUserBtn" class="btn-floating btn waves-effect waves-light green" onclick="logOut()"><i class="material-icons">exit_to_app</i></a>
+			<a id="logUserBtn" class="btn-floating btn waves-effect waves-light green tooltipped" data-position="top" data-delay="50" data-tooltip="Log In" onclick="logOut()"><i class="material-icons">exit_to_app</i></a>
 	  	</div>
 	    
 	    </div>

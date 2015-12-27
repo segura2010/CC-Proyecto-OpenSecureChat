@@ -7,6 +7,9 @@ var MONGODB_URL = process.env.MONGODB_URL || 'localhost:27017/opensecurechat';
 var REDIS_URL = process.env.REDIS_URL || null;
 var PROFILE_PICTURE_MAX_SIZE = process.env.PROFILE_PICTURE_MAX_SIZE || 1000000; // in bytes; default = 1MB = 1000000
 
+// Async
+var async = require('async');
+
 // Parse redis URL
 var url = require('url');
 
@@ -180,6 +183,20 @@ io.on('connection', function (socket) {
 				}
 
 				User.getUsersById(users, function(err, usersResult){
+					async.each(usersResult, function(u, callback){
+						Chat.getChatsForUser(u._id, function(err, unread){
+							u["unread"] = chats[u._id.toString()]; // my unread messages from other user
+							u["ounread"] = unread[user._id.toString()]; // the other user unread messages from me
+							u.email = "";
+							u.password = "";
+							u.private_key = "";
+							callback();
+						});
+					}, function(err){
+						cb(null, usersResult);
+					});
+
+					/*
 					for(u in usersResult)
 					{	// add unread count and remove private data
 						usersResult[u]["unread"] = chats[usersResult[u]._id.toString()];
@@ -187,8 +204,9 @@ io.on('connection', function (socket) {
 						usersResult[u].password = "";
 						usersResult[u].private_key = "";
 					}
+					*/
 
-					cb(null, usersResult);
+					//cb(null, usersResult);
 				});
 			});
 		});
@@ -267,7 +285,14 @@ io.on('connection', function (socket) {
 					return cb("Invalid token", null);
 				}
 
-				Chat.markAsRead(user._id, userWith._id, cb);
+				Chat.markAsRead(user._id, userWith._id, function(err, r){
+					if(err)
+					{
+						return cb("Error marking as read", null);
+					}
+
+					io.sockets.in(userWith.password).emit('readMessage', user.username );
+				});
 			});
 		});
 	});
