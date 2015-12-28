@@ -303,6 +303,12 @@ io.on('connection', function (socket) {
 	});
 
 	socket.on('sendFile', function (data, cb){
+
+		if(data.content.length > FILE_MAX_SIZE)
+		{
+			return cb("File size exceeded", null);
+		}
+
 		User.getByUsername(data.username, function(err, userTo){
 			userTo = userTo[0];
 			if(err || !userTo)
@@ -341,6 +347,29 @@ io.on('connection', function (socket) {
 						cb(null, uFile._id.toString());
 					});
 				});
+			});
+		});
+	});
+
+	socket.on('downloadFile', function (id, cb){
+		User.getByPassword(socket.token, function(err, user){
+			user = user[0];
+			if(err || !user)
+			{
+				return cb("Invalid token", null);
+			}
+			
+			UploadedFile.getById(id, function(err, uFile){
+				uFile = uFile[0];
+				if(err || !uFile)
+				{
+					return cb("Error getting file", null);
+				}
+
+				uFile.key = uFile.keys[user._id.toString()];
+				uFile.keys = null;
+
+				cb(null, uFile);
 			});
 		});
 	});

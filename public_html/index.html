@@ -94,6 +94,8 @@
 	          <div id="chatWith" class="chat-with">Anyone</div>
 	          <div id="chatNumMessages" class="chat-num-messages">0</div>
 	        </div>
+
+
 	        <a href="#!" onclick="deleteMessages()" style="color:red"><i class="material-icons right">delete</i></a>
 	      </div> <!-- end chat-header -->
 	      
@@ -134,9 +136,16 @@
 	      <div class="chat-message clearfix">
 	        <textarea name="message-to-send" id="messageTxt" placeholder ="Type your message" rows="3" onkeypress="checkSendMessage(event)"></textarea>
 	        
-	        <input type="file" id="fileInput">
 
-	        <button onclick="sendMessage()">Send</button>
+	        <div>
+		        <div class="input-field left" style="position:relative;bottom:85px;left:380px;">
+			      <input type="file" id="fileInput" style="display:none">
+			      <label class="active" for="fileInput"><a class="btn-floating btn waves-effect waves-light blue tooltipped" data-position="top" data-delay="50" data-tooltip="Send File"><i class="material-icons">cloud_upload</i></a></label>
+			    </div>
+
+			    <a class="btn-floating btn waves-effect waves-light green tooltipped right" style="position:relative;bottom:30px;left:0px;" data-position="top" data-delay="50" data-tooltip="Send Message" onclick="sendMessage()"><i class="material-icons">send</i></a>
+		        <!-- <button class="right" onclick="sendMessage()">Send</button> -->
+		    </div>
 
 	      </div> <!-- end chat-message -->
 	      

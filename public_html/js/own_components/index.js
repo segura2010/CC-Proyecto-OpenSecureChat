@@ -234,7 +234,7 @@ function newMessageRecived(data)
 
 	var username = $("#chatWith").html();
 
-	var isFile = data.isFile ? "1" : "0";
+	var isFile = data.isFile ? 1 : 0;
 
 	saveMessageOnCache( "[0"+ isFile +"]"+data.message, data.username );
 
@@ -246,7 +246,7 @@ function newMessageRecived(data)
 	if(username == data.username)
 	{
 		markAsRead(data.username);
-		$("#chatWindow").prepend(getMessageChatTemplate(username, message, 0, isFile));
+		$("#chatWindow").prepend(getMessageChatTemplate(username, message, 0, 0, isFile));
 	}
 	else
 	{
@@ -255,7 +255,8 @@ function newMessageRecived(data)
 		$("#"+data.username+"_unread").html(unread + 1);
 	}
 
-	showNavigatorNotification(data.username, message, picture);
+	var nMessage = isFile ? "Sent new file" : message;
+	showNavigatorNotification(data.username, nMessage, picture);
 }
 
 function readMessage(username)
@@ -514,12 +515,12 @@ function getMessageChatTemplate(username, message, isMe, isUnread, isFile)
     +'</div>'
   	+'</li>';
 
-
+  	// parse links, sanitize..
   	message = parseMessage(message);
 
   	if(isFile)
 	{
-		message = "<i class='material-icons'>attach_file</i> " + message;
+		message = "<a href='#!' onclick='downloadFile(\""+ message +"\")'><i class='material-icons'>attach_file</i> " + message + "</a>";
 	}
 
   	template = template.replace(/\{username\}/g, username).replace(/\{message\}/g, message);
@@ -561,10 +562,8 @@ function createChat()
 
 function showEditProfile()
 {
-	//socket.emit("getUserInfo", localStorage.getItem("username"), function(err, data){
-		$("#editProfileImage").prop("src", $("#imageProfile").prop("src") );
-		$("#editProfile").openModal();
-	//});
+	$("#editProfileImage").prop("src", $("#imageProfile").prop("src") );
+	$("#editProfile").openModal();
 }
 
 function uploadProfileImage(evt)
@@ -619,7 +618,7 @@ function uploadFile(evt)
 
 				var randomKey = CryptoJS.lib.WordArray.random(128/8).toString();
 				var content = CryptoJS.AES.encrypt(e.target.result, randomKey).toString();
-				
+
 				JSE.setPublicKey(public_key);
 				var fileTo = JSE.encrypt(randomKey);
 				JSE.setPublicKey(localStorage.getItem("public_key"));
@@ -640,7 +639,8 @@ function uploadFile(evt)
 					}
 
 					var username = $("#chatWith").html();
-					$("#chatWindow").prepend(getMessageChatTemplate(username, message, 1, true, 1));
+					saveMessageOnCache( "[11]"+d, username );
+					$("#chatWindow").prepend(getMessageChatTemplate(username, d, 1, true, 1));
 				});
 			});
 		};
@@ -650,6 +650,21 @@ function uploadFile(evt)
 	reader.readAsDataURL(f);
 }
 
+function downloadFile(id)
+{
+	socket.emit("downloadFile", id, function(err, data){
+		if(err)
+		{
+			return dangerAlert(err);
+		}
+
+		// Decrypt key file
+		var kFile = JSE.decrypt(data.key);
+		var content = CryptoJS.enc.Latin1.stringify( CryptoJS.AES.decrypt(data.content, kFile) );
+
+		window.open(content);
+	});
+}
 
 function searchUserInfoOnCache(username)
 {
