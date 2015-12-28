@@ -662,7 +662,12 @@ function downloadFile(id)
 		var kFile = JSE.decrypt(data.key);
 		var content = CryptoJS.enc.Latin1.stringify( CryptoJS.AES.decrypt(data.content, kFile) );
 
-		window.open(content);
+		//window.open(content);
+		$("#chatFileIframe").attr("src", content);
+		$("#chatFileDownloadLink").attr("href", content);
+		$("#chatFileDownloadLink").attr("download", data.name);
+		$("#chatFileName").html(data.name);
+		$("#chatFileModal").openModal();
 	});
 }
 

@@ -1,13 +1,13 @@
 
 # OS
-FROM ubuntu:14.04
+FROM ubuntu:12.04
 
 MAINTAINER A. Segura <alberto.segura.delgado@gmail.com>
 
 # MongoDB Installation:
 # Import MongoDB public GPG key AND create a MongoDB list file
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10
-RUN echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.0.list
+RUN echo "deb http://repo.mongodb.org/apt/ubuntu precise/mongodb-org/3.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.0.list
 
 RUN apt-get update
 RUN apt-get install -y mongodb-org --force-yes
@@ -48,6 +48,9 @@ WORKDIR "CC-Proyecto-OpenSecureChat"
 
 EXPOSE 3000
 
+
+RUN npm cache clean
+RUN npm install -g grunt-cli
 RUN npm install
 RUN grunt dist
 CMD ["npm", "start"]
