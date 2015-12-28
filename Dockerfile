@@ -35,8 +35,8 @@ RUN curl -sL https://deb.nodesource.com/setup | bash -
 RUN apt-get install -y nodejs npm
 
 # Install OpenSSH (if you deploy the container)
-RUN apt-get install -y openssh-server --force-yes
-EXPOSE 22
+# RUN apt-get install -y openssh-server --force-yes
+# EXPOSE 22
 
 # fix bug..
 RUN npm config set registry http://registry.npmjs.org/
