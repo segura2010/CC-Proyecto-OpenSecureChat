@@ -50,4 +50,4 @@ EXPOSE 3000
 
 RUN npm install
 RUN grunt dist
-RUN nodejs app &
+CMD ["npm", "start"]

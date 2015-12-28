@@ -191,7 +191,7 @@ io.on('connection', function (socket) {
 					async.each(usersResult, function(u, callback){
 						Chat.getChatsForUser(u._id, function(err, unread){
 							u["unread"] = chats[u._id.toString()]; // my unread messages from other user
-							u["ounread"] = unread[user._id.toString()]; // the other user unread messages from me
+							u["ounread"] = unread ? unread[user._id.toString()] : 0; // the other user unread messages from me
 							u.email = "";
 							u.password = "";
 							u.private_key = "";
