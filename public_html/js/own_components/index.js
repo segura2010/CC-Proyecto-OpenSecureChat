@@ -339,7 +339,7 @@ function sendMessageTo(username, msg)
 			}
 
 			searchUserInfoOnCache(username).ounread++;
-			saveMessageOnCache( "[1]"+messageData.msgFrom, username );
+			saveMessageOnCache( "[10]"+messageData.msgFrom, username );
 		});
 	});
 
@@ -659,6 +659,7 @@ function downloadFile(id)
 		}
 
 		// Decrypt key file
+		JSE.setPrivateKey(localStorage.getItem('private_key'));
 		var kFile = JSE.decrypt(data.key);
 		var content = CryptoJS.enc.Latin1.stringify( CryptoJS.AES.decrypt(data.content, kFile) );
 
@@ -667,7 +668,23 @@ function downloadFile(id)
 		$("#chatFileDownloadLink").attr("href", content);
 		$("#chatFileDownloadLink").attr("download", data.name);
 		$("#chatFileName").html(data.name);
+
+		$("#chatFileDeleteLink").unbind();
+		$("#chatFileDeleteLink").on("click", function(){ event.stopPropagation(); deleteFile(id); });
+
 		$("#chatFileModal").openModal();
+	});
+}
+
+function deleteFile(id)
+{
+	socket.emit("deleteFile", id, function(err, data){
+		if(err)
+		{
+			return dangerAlert(err);
+		}
+
+		successAlert("Deleted!");
 	});
 }
 

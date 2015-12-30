@@ -374,6 +374,36 @@ io.on('connection', function (socket) {
 		});
 	});
 
+	socket.on('deleteFile', function (id, cb){
+		User.getByPassword(socket.token, function(err, user){
+			user = user[0];
+			if(err || !user)
+			{
+				return cb("Invalid token", null);
+			}
+			
+			UploadedFile.isOwner(user._id.toString(), id, function(err, isOwner){
+				if(err)
+				{
+					return cb("Error getting file", null);
+				}
+				if(!isOwner)
+				{
+					return cb("Error: You do not have permission", null);
+				}
+
+				UploadedFile.delete(id, function(err,r){
+					if(err)
+					{
+						return cb("Error deleting file", null);
+					}
+
+					cb(null, 1);
+				});
+			});
+		});
+	});
+
 	socket.on('join', function (room, cb){
 		socket.token = room;
 		socket.join(room);

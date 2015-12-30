@@ -18,8 +18,7 @@ RUN apt-get install -y mongodb-org=3.0.1 mongodb-org-server=3.0.1 mongodb-org-sh
 RUN mkdir -p /data/db
 
 # You can expose port 27017 from the container to the host
-# EXPOSE 27017
-
+EXPOSE 27017
 
 
 # Install Redis
@@ -36,7 +35,7 @@ RUN apt-get install -y nodejs npm
 
 # Install OpenSSH (if you deploy the container)
 # RUN apt-get install -y openssh-server --force-yes
-# EXPOSE 22
+EXPOSE 22
 
 # fix bug..
 RUN npm config set registry http://registry.npmjs.org/
@@ -52,6 +51,7 @@ RUN /usr/bin/mongod &
 
 # Redis
 RUN /usr/bin/redis-server &
+
 
 # Download lastest version of OSC
 RUN git clone -b production https://github.com/segura2010/CC-Proyecto-OpenSecureChat.git
