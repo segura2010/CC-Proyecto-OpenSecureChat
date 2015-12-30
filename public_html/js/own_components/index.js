@@ -678,14 +678,17 @@ function downloadFile(id)
 
 function deleteFile(id)
 {
-	socket.emit("deleteFile", id, function(err, data){
-		if(err)
-		{
-			return dangerAlert(err);
-		}
+	if(confirm("Are you sure you want to delete this file?"))
+	{
+		socket.emit("deleteFile", id, function(err, data){
+			if(err)
+			{
+				return dangerAlert(err);
+			}
 
-		successAlert("Deleted!");
-	});
+			successAlert("Deleted!");
+		});
+	}
 }
 
 function searchUserInfoOnCache(username)
