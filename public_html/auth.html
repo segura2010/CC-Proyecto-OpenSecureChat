@@ -1,0 +1,80 @@
+<html>
+
+<head>
+	<title>OpenSecureChat</title>
+
+	<!--Import Google Icon Font-->
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+	<!-- Prepare SocketIO and JS files -->
+	<script src="socket.io/socket.io.js"></script>
+
+	<script src="js/bower_components/jsencrypt/jsencrypt.min.js"></script>
+
+	<script src="js/bower_components/cryptojslib/core-min.js"></script>
+	<script src="js/bower_components/cryptojslib/enc-base64-min.js"></script>
+	<script src="js/bower_components/cryptojslib/sha256-min.js"></script>
+	<script src="js/bower_components/cryptojslib/sha1-min.js"></script>
+	<script src="js/bower_components/cryptojslib/aes.js"></script>
+
+	<script src="js/bower_components/jquery/jquery.js"></script>
+
+	<!-- Compiled and minified CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/css/materialize.min.css">
+
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/js/materialize.min.js"></script>
+
+	<!-- Prepare CSS -->
+	<link type="text/css" rel="stylesheet" href="css/resetosc.min.css"/>
+	<link type="text/css" rel="stylesheet" href="css/styleosc.min.css"/>
+
+
+	<script>
+
+    var SOCKETIO_URL = location.protocol + "//" + location.host ;
+
+	socket = io(SOCKETIO_URL);
+
+	function isLoggedIn()
+	{
+		return localStorage.username && localStorage.password && localStorage.private_key && localStorage.public_key;
+	}
+
+	if(isLoggedIn())
+	{
+		socket.emit("join", localStorage.getItem("password"));
+	}
+
+    function authPush()
+    {
+    	var word = "access_token=";
+	    var ini = document.URL.indexOf(word);
+	    var token = document.URL.substring(ini + word.length);
+
+	    if(token)
+	    {
+	    	socket.emit("pushAuth", token, function(err, d){
+	    		if(err)
+	    		{
+	    			return dangerAlert(err);
+	    		}
+	    		document.location.href = location.protocol + "//" + location.host;
+	    	});
+	    }
+	}
+
+	</script>
+
+
+</head>
+
+
+<body onload="authPush()">
+
+
+
+</body>
+
+
+</html>

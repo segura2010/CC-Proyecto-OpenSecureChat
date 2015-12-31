@@ -14,10 +14,10 @@ var USERS = [];
 
 function init()
 {
+	getConfig();
+
 	document.getElementById('profileImageInput').addEventListener('change', uploadProfileImage, false);
 	document.getElementById('fileInput').addEventListener('change', uploadFile, false);
-
-	getConfig();
 
 	// Get notification permission
 	Notification.requestPermission(function(permission){});
@@ -46,6 +46,9 @@ function getConfig()
 		setUpIORooms();
 		setUpSocketIOEvents();
 		showWelcome();
+
+		// SetUp Pushbullet Link
+		$("#pushbulletSignInLink").attr("href", data.pushbullet);
 
 	}).fail(function(e){
 		dangerAlert("Unable to load configuration info");

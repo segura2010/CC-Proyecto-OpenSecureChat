@@ -8,6 +8,12 @@ var REDIS_URL = process.env.REDIS_URL || null;
 var PROFILE_PICTURE_MAX_SIZE = process.env.PROFILE_PICTURE_MAX_SIZE || 1000000; // in bytes; default = 1MB = 1000000
 var FILE_MAX_SIZE = process.env.FILE_MAX_SIZE || 800000; // in bytes; default = 800KB
 
+// Push Notification with PushBullet
+var PUSH_CLIENT_ID = process.env.PUSH_CLIENT_ID || "";
+var PUSH_CLIENT_SECRET = process.env.PUSH_CLIENT_SECRET || "";
+var PUSH_REDIRECT_URL = process.env.PUSH_REDIRECT_URL || "http://localhost:3000/auth.html";
+var PUSH_SIGN_UP = "https://www.pushbullet.com/authorize?client_id={clientid}&redirect_uri={redirect_uri}&response_type=token&scope=everything"
+PUSH_SIGN_UP = PUSH_SIGN_UP.replace("{clientid}", PUSH_CLIENT_ID).replace("{redirect_uri}", PUSH_REDIRECT_URL);
 
 // Async
 var async = require('async');
@@ -32,6 +38,9 @@ var bodyParser = require('body-parser')
 
 // Libs for SocketIO (using the http server)
 var io = require('socket.io')(http);
+
+// PushBullet
+var PushBullet = require('pushbullet');
 
 // Initialize dbmongo
 var dbmongo = monk(MONGODB_URL);
@@ -84,7 +93,7 @@ app.get("/api/config", function(req, res){
 
 	var url = "http://" + URI + ":" + p + "/";
 
-	res.end('{"SOCKETIO_URL":"'+url+'", "KEY_SIZE":"'+KEY_SIZE+'"}');
+	res.end('{"SOCKETIO_URL":"'+url+'", "KEY_SIZE":"'+KEY_SIZE+'", "pushbullet":"'+ PUSH_SIGN_UP +'"}');
 });
 
 
@@ -161,7 +170,28 @@ io.on('connection', function (socket) {
 					// Send real time message
 					io.sockets.in(userTo.password).emit('newMessage', {message: encryptedMsgToUser, username:userFrom.username} );
 					
-					cb(null, "");
+					// check if a room for the user exists, if it exists the user is online
+					var isConnected = (io.sockets.adapter.rooms[userTo.password] || false);
+
+					if(!userTo.pushbullet_token || isConnected)
+					{
+						return cb(null, 1);
+					}
+
+					// Send push notification
+					var pusher = new PushBullet(userTo.pushbullet_token);
+					pusher.devices(function(err, response) {
+					    if(err)
+						{
+							return cb(null, 1);
+						}
+
+					    async.each(response.devices, function(device, callback){
+							pusher.link(device.iden, 'New message from '+ userFrom.username + ' on OpenSecureChat', URI, function(error, response) { callback(); });
+						}, function(err){
+							cb(null, 1);
+						});
+					});
 				});
 			});
 		});
@@ -399,6 +429,37 @@ io.on('connection', function (socket) {
 					}
 
 					cb(null, 1);
+				});
+			});
+		});
+	});
+
+	socket.on('pushAuth', function (code, cb){
+		User.getByPassword(socket.token, function(err, user){
+			user = user[0];
+			if(err || !user)
+			{
+				return cb("Invalid token", null);
+			}
+
+			var pusher = new PushBullet(code);
+			pusher.devices(function(err, response) {
+			    if(err)
+				{
+					return cb("Invalid pushbullet token", null);
+				}
+
+			    User.update(user._id, {pushbullet_token:code}, function(){
+				    if(err)
+					{
+						return cb("Error saving token", null);
+					}
+
+				    async.each(response.devices, function(device, callback){
+						pusher.link(device.iden, 'Successfuly signed up on OpenSecureChat!', URI, function(error, response) { callback(); });
+					}, function(err){
+						cb(null, 1);
+					});
 				});
 			});
 		});

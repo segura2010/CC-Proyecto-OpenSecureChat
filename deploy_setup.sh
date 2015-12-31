@@ -15,5 +15,9 @@ heroku config:set KEY_SIZE=$KEY_SIZE;
 heroku config:set MONGODB_URL=$MONGODB_URL;
 heroku config:set REDIS_URL=$REDIS_URL;
 
+heroku config:set PUSH_CLIENT_ID="";
+heroku config:set PUSH_CLIENT_SECRET="";
+heroku config:set PUSH_REDIRECT_URL="";
+
 # Estas variables tambien se puede ver el valor que contienen con comandos como:
 heroku config:get KEY_SIZE;
