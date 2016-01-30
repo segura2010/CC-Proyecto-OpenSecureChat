@@ -134,8 +134,7 @@ function resgistrationResponse(err, r)
 	// Reset for security
 	PLAIN_PASSWORD = "";
 
-	showWelcome();
-
+	location.reload();
 }
 
 function logInUser()
@@ -523,7 +522,7 @@ function getMessageChatTemplate(username, message, isMe, isUnread, isFile)
 
   	if(isFile)
 	{
-		message = "<a href='#!' onclick='downloadFile(\""+ message +"\")'><i class='material-icons'>attach_file</i> " + message + "</a>";
+		message = "<a href='#!' onclick='downloadFile(\""+ message +"\")'><i class='material-icons'>attach_file</i> Shared File </a>";
 	}
 
   	template = template.replace(/\{username\}/g, username).replace(/\{message\}/g, message);
